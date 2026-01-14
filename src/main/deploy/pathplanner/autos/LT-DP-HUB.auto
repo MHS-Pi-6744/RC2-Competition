@@ -21,6 +21,12 @@
           "data": {
             "pathName": "HUB-OP"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "OP-HUB"
+          }
         }
       ]
     }
