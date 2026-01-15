@@ -5,9 +5,11 @@
   "pathFolders": [
     "DP-",
     "HUB-",
-    "NZ-",
     "LT-",
-    "OP-"
+    "NZ-",
+    "OP-",
+    "RT-",
+    ".Strategy"
   ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,

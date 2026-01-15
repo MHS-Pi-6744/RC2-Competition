@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 7.75,
-        "y": 5.5
+        "y": 6.0
       },
       "isLocked": true,
       "linkedName": "NZ"
@@ -41,14 +41,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 3.0,
     "rotation": 180.0
   },
   "reversed": false,
   "folder": "NZ-",
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": 0.0
+    "velocity": 0.0,
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

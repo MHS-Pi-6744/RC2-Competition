@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 7.75,
-        "y": 1.0
+        "y": 2.0
       },
       "isLocked": false,
       "linkedName": "NZ"
@@ -48,7 +48,7 @@
   "folder": "NZ-",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

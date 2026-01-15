@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LT-DP"
+            "pathName": "RT-OP"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "DP-HUB"
+            "pathName": "OP-HUB"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "HUB-LC"
+            "pathName": "HUB-RC"
           }
         }
       ]

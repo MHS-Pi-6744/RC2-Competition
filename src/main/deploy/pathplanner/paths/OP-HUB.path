@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 0.5,
-        "y": 0.5
+        "y": 0.65
       },
       "prevControl": null,
       "nextControl": {
         "x": 0.9057234817310605,
-        "y": 1.1523561894840513
+        "y": 1.3023561894840512
       },
       "isLocked": false,
       "linkedName": "OP"
@@ -48,7 +48,7 @@
   "folder": "OP-",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

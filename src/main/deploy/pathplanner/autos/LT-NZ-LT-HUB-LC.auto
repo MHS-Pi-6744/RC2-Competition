@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LT-DP"
+            "pathName": "LT-NZ"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "DP-HUB"
+            "pathName": "NZ-LT"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LT-HUB"
           }
         },
         {
