@@ -17,7 +17,6 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 
 // WPILib stuff
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.PS4Controller.Button;
 
 // Constants
 import frc.robot.Constants.AutoConstants;
