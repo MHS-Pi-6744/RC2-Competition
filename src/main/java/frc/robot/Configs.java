@@ -5,6 +5,9 @@ import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+
+import com.revrobotics.spark.config.SparkFlexConfig;
+
 import frc.robot.Constants.ModuleConstants;
 
 public final class Configs {
@@ -59,4 +62,25 @@ public final class Configs {
                     .positionWrappingInputRange(0, turningFactor);
         }
     }
+
+    public static final class IntakeSubsystem {
+    public static final SparkFlexConfig intakeConfig = new SparkFlexConfig();
+    public static final SparkFlexConfig conveyorConfig = new SparkFlexConfig();
+
+    static {
+      // Configure basic settings of the intake motor
+      intakeConfig
+        .inverted(false)
+        .idleMode(IdleMode.kCoast)
+        .openLoopRampRate(0.5)
+        .smartCurrentLimit(40);
+
+      // Configure basic settings of the conveyor motor
+      conveyorConfig
+        .inverted(true)
+        .idleMode(IdleMode.kCoast)
+        .openLoopRampRate(0.5)
+        .smartCurrentLimit(40);
+    }
+  }
 }
