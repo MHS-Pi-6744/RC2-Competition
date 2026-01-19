@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+// Math stuff
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -22,6 +23,21 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static final class IntakeSubsystemConstants {
+    public static final int kIntakeMotorCanId = 2;    // SPARK Flex CAN ID
+    public static final int kConveyorMotorCanId = 4;  // SPARK Flex CAN ID
+
+    public static final class IntakeSetpoints {
+      public static final double kIntake = 0.6;
+      public static final double kExtake = -0.6;
+    }
+
+    public static final class ConveyorSetpoints {
+      public static final double kIntake = 0.7;
+      public static final double kExtake = -0.7;
+    }
+  }
+
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
