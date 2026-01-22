@@ -4,11 +4,10 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.hal.FRCNetComm.tInstances;
-import edu.wpi.first.hal.FRCNetComm.tResourceType;
-
 import com.ctre.phoenix6.hardware.Pigeon2;
 
+import edu.wpi.first.hal.FRCNetComm.tInstances;
+import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -19,7 +18,12 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.Constants.DriveConstants;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 
@@ -64,35 +68,50 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearRight.getPosition()
       });
 
-  /** Creates a new DriveSubsystem. */
-  public DriveSubsystem() {
-    // Usage reporting for MAXSwerve template
-    HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_MaxSwerve);
-    var stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
-    var visionStdDevs = VecBuilder.fill(1, 1, 1);
-    poseEstimator = new SwerveDrivePoseEstimator(
-        DriveConstants.kDriveKinematics,
-        getGyroYaw(),
-        getModulePositions(),
-        new Pose2d(),
-        stateStdDevs,
-        visionStdDevs);
-  }
+      */
+    Field2d m_field;
+    private final Sendable m_fieldSendable = new Sendable() {
+        @Override
+        public void initSendable(SendableBuilder builder) {
+            m_field.initSendable(builder);
+            m_field.setRobotPose(poseEstimator.getEstimatedPosition());
+        };
+    };
 
-  @Override
-  public void periodic() {
-    // Update the odometry in the periodic block
-    /*
-    m_odometry.update(
-        m_gyro.getRotation2d(),
-        new SwerveModulePosition[] {
-            m_frontLeft.getPosition(),
-            m_frontRight.getPosition(),
-            m_rearLeft.getPosition(),
-            m_rearRight.getPosition()
-        });
-     */
-  }
+    /** Creates a new DriveSubsystem. */
+    public DriveSubsystem() {
+        // Usage reporting for MAXSwerve template
+        HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_MaxSwerve);
+        var stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
+        var visionStdDevs = VecBuilder.fill(1, 1, 1);
+        poseEstimator = new SwerveDrivePoseEstimator(
+            DriveConstants.kDriveKinematics,
+            getGyroYaw(),
+            getModulePositions(),
+            new Pose2d(),
+            stateStdDevs,
+            visionStdDevs);
+        m_field = new Field2d();
+    }
+
+    @Override
+    public void periodic() {
+        // Update the odometry in the periodic block
+        /*
+        m_odometry.update(
+            m_gyro.getRotation2d(),
+            new SwerveModulePosition[] {
+                m_frontLeft.getPosition(),
+                m_frontRight.getPosition(),
+                m_rearLeft.getPosition(),
+                m_rearRight.getPosition()
+            });
+        */
+        poseEstimator.update(getGyroYaw(), getModulePositions());
+        m_field.setRobotPose(poseEstimator.getEstimatedPosition());
+
+        SmartDashboard.putData("Cam2 Field2d", m_fieldSendable);
+    }
 
   /** See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double)}. */
   public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds) {
@@ -224,7 +243,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @return {@link Rotation2d} that has the gyro yaw
    */
   public Rotation2d getGyroYaw() {
-    return Rotation2d.fromDegrees(m_gyro.getAngle(IMUAxis.kYaw));
+    return m_gyro.getRotation2d();
   }
 
   /**

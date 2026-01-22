@@ -25,7 +25,7 @@ import frc.robot.Constants.OIConstants;
 
 // Subsystems
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
+// import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Vision;
 // WpiLib2 stuff
 import edu.wpi.first.wpilibj2.command.Command;
@@ -47,7 +47,8 @@ import java.util.List;
 public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  private final IntakeSubsystem m_intake = new IntakeSubsystem();
+  // private final IntakeSubsystem m_intake = new IntakeSubsystem();
+  @SuppressWarnings("unused")
   private final Vision vision = new Vision(m_robotDrive::addVisionMeasurement);
 
   // The driver's controller
@@ -84,8 +85,8 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     m_driverController.rightBumper().whileTrue(new InstantCommand(() -> m_robotDrive.setX()));
-    m_driverController.rightTrigger().whileTrue(m_intake.runIntakeCommand());
-    m_driverController.leftTrigger().whileTrue(m_intake.runExtakeCommand());
+    // m_driverController.rightTrigger().whileTrue(m_intake.runIntakeCommand());
+    // m_driverController.leftTrigger().whileTrue(m_intake.runExtakeCommand());
     m_driverController.start().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
   }
 
