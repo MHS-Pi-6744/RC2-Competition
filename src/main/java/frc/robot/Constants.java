@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.VisionConstants.kTagLayout;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
