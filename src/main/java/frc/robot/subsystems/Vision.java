@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.VisionConstants.*;
+import static frc.robot.Constants.VisionConstants.kCameraName;
+import static frc.robot.Constants.VisionConstants.kRobotToCam;
+import static frc.robot.Constants.VisionConstants.kTagLayout;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -19,13 +21,12 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber(kCameraName + " yaw of 3", getTargetYaw(3));
-        SmartDashboard.putNumber(kCameraName + " yaw of 25", getTargetYaw(25));
-        SmartDashboard.putNumber(kCameraName + " yaw of 26", getTargetYaw(26));
+        getTagYaw(25);
     }
-
-    public double getTargetYaw(int tagID) {
+    
+    public double getTagYaw(int ID) {
         double yaw = 0.0;
+        boolean targetVisible = false;
         var results = camera.getAllUnreadResults();
         if (!results.isEmpty()) {
             // Camera processed a new frame since last
@@ -34,13 +35,15 @@ public class Vision extends SubsystemBase {
             if (result.hasTargets()) {
                 // At least one AprilTag was seen by the camera
                 for (var target : result.getTargets()) {
-                    if (target.getFiducialId() == tagID) {
+                    if (target.getFiducialId() == ID) {
                         yaw = target.getYaw();
-                        // targetVisible = true;
+                        targetVisible = true;
                     }
                 }
             }
         }
+        SmartDashboard.putBoolean("Tag #" + ID + " Visible", targetVisible);
+        SmartDashboard.putNumber("Tag #"+ ID +" Yaw", yaw);
         return yaw;
     }
 }
