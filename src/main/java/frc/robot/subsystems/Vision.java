@@ -21,7 +21,6 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
-        getTagYaw(25);
     }
     
     public double getTagYaw(int ID) {
