@@ -153,10 +153,6 @@ public class DriveSubsystem extends SubsystemBase {
     poseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);
   }
 
-  public void stop() {
-    drive(0, 0, 0, true);
-  }
-
   /**
    * Method to drive the robot using joystick info.
    *
