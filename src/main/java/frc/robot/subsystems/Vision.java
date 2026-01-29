@@ -1,24 +1,10 @@
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.VisionConstants.kCameraName;
-import static frc.robot.Constants.VisionConstants.kMultiTagStdDevs;
-import static frc.robot.Constants.VisionConstants.kRobotToCam;
-import static frc.robot.Constants.VisionConstants.kSingleTagStdDevs;
-import static frc.robot.Constants.VisionConstants.kTagLayout;
+import static frc.robot.Constants.VisionConstants.*;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
