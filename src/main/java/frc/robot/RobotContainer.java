@@ -44,7 +44,6 @@ public class RobotContainer {
     // The robot's subsystems
     private final DriveSubsystem m_robotDrive = new DriveSubsystem();
     // private final IntakeSubsystem m_intake = new IntakeSubsystem();
-    @SuppressWarnings("unused")
     private final Vision vision = new Vision();
 
     // The driver's controller
@@ -67,13 +66,24 @@ public class RobotContainer {
                     OIConstants.kDriveDeadband),
                 -MathUtil.applyDeadband(m_driverController.getLeftX(),
                     OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(vision.safeGetTagYaw(25) / 180, OIConstants.kDriveDeadband),
-                    /* 
+                /* *
+                -MathUtil.applyDeadband(vision.safeGetTagYaw(25),
+                    OIConstants.kDriveDeadband),
+                // */
+
+                /* */
+                -MathUtil.applyDeadband(m_driverController.a().getAsBoolean()
+                ? vision.safeGetTagYaw(25) / 180
+                : m_driverController.getRightX(),
+                OIConstants.kDriveDeadband),
+                // */
+
+                /* *
                 -MathUtil.applyDeadband(m_driverController.getRightX(),
                     OIConstants.kDriveDeadband),
-                */
+                // */
                 true),
-            m_robotDrive));
+            m_robotDrive, vision));
         // */
     }
 
