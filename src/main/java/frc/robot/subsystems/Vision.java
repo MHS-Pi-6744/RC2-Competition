@@ -93,19 +93,72 @@ public class Vision extends SubsystemBase {
      * @author MattheDev53
      */
     public double safeGetTagYaw(int ID) {
-        var tag = getTag(ID);
-        double yaw = tag == null ? 0.0 : tag.getYaw();
-        return yaw;
+        return getTagSafety(ID) ? 0.0 : getTag(ID).getYaw();
     }
 
     /**
-     * Gets whether or not a certain tag visible
+     * Get whether or not a tag is safe to use.
+     * Meant for internal use
+     * 
+     * @apiNote It is encouraged to use {@link #getTagVisible(ID)}
+     * if you want to know about visibility. Yes, that function is
+     * literally just a call to this one, but it helps with deciphering
+     * your intent in the code. Thank you :3
+     * @param ID The ID of the Tag to check
+     * @return Is the tag not {@code null}
+     * @author MattheDev53
+     */
+    private boolean getTagSafety(int ID) {
+        return getTag(ID) == null ? false : true;
+    }
+
+    /**
+     * Gets whether or not a certain tag visible.
      * 
      * @param ID The ID of the tag to ask about visibility
-     * @return Whether or not the tag is in the most recent result.
+     * @return Whether or not the tag is visible
      * @author MattheDev53
      */
     public boolean getTagVisible(int ID) {
-        return getTag(ID) == null ? false : true;
+        return getTagSafety(ID);
+    }
+
+    /**
+     * Gets the average Yaw of the <b>visible</b> tags passed in.
+     * What this means is if a tag is not visible,
+     * it will not be counted in the average.
+     * This makes it so that if one wishes to track two tags,
+     * but can only see one, the zero value of the non-visible tag
+     * does not affect the value of the average.
+     * <p>
+     * ex #1: If Tag A has a yaw of 30, and Tag B is not visible,
+     * the "average" will be 30, because this function ignores
+     * the non-visible tags when calculating the divisor.
+     * <p> 
+     * ex #2: If Tag A has a yaw of 30, and Tag B has a yaw of 0,
+     * the average will be 15, because both tags are visible,
+     * and will therefore both affect the divisor
+     * 
+     * @param IDs Array of tags to average
+     * @return The average Yaw of all visible tags passed in.
+     * If there are no visible tags in the list, this function returns {@code 0.0}
+     * @author MattheDev53
+     */
+    public double getAverageTagsYaw(int[] IDs) {
+        
+        // Set up variables
+        double yawTotal = 0.0;
+        int divisor = 0;
+
+        // Loop through all IDs passed in
+        for (int ID : IDs) {
+            yawTotal += safeGetTagYaw(ID);
+
+            // Tags that are not visible do not affect the divisor
+            if (getTagVisible(ID)) divisor++;
+        }
+
+        // Avoid Divide by Zero Error
+        return divisor == 0 ? 0.0 : yawTotal / divisor;
     }
 }
