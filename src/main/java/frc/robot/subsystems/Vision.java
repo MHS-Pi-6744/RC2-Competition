@@ -1,18 +1,11 @@
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.VisionConstants.kCameraName;
-import static frc.robot.Constants.VisionConstants.kRobotToCam;
-import static frc.robot.Constants.VisionConstants.kTagLayout;
-
-import java.util.List;
+import static frc.robot.Constants.VisionConstants.*;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import org.photonvision.targeting.TargetCorner;
 
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -49,8 +42,9 @@ public class Vision extends SubsystemBase {
         refreshTags();
         SmartDashboard.putData("Tag #25", s_tag25);
         SmartDashboard.putData("Tag #26", s_tag26);
+        SmartDashboard.putNumber("Closest Test", getClosestTag(new int[]{25, 26}).getYaw());
         SmartDashboard.putNumber("Average of Tags", getAverageTagsYaw(new int[]{25, 26}));
-        SmartDashboard.putNumber("Priority: 25, 26", getTagYawsWithPriority(new int[]{25, 26}));
+        SmartDashboard.putNumber("Priority: 25, 26", getTagsWithPriority(new int[]{25, 26}).getYaw());
     }
 
     /**
@@ -70,6 +64,7 @@ public class Vision extends SubsystemBase {
                 builder.addDoubleProperty("Tag #"+ID+" Area", () -> getTag(ID).getArea(), null);
                 builder.addDoubleProperty("Tag #"+ID+" Pitch", () -> getTag(ID).getPitch(), null);
                 builder.addDoubleProperty("Tag #"+ID+" Ambiguity", () -> getTag(ID).getPoseAmbiguity(), null);
+                builder.addDoubleProperty("Tag #"+ID+" X", () -> getTag(ID).getBestCameraToTarget().getX(), null);
             }
         };
     }
@@ -134,20 +129,7 @@ public class Vision extends SubsystemBase {
     public PhotonTrackedTarget getTag(int ID) {
         return getTagSafety(ID)
         ? unsafeGetTag(ID)
-        : new PhotonTrackedTarget(
-            0,
-            0,
-            0,
-            0,
-            -1,
-            0,
-            0,
-            new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0)),
-            new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0)),
-            0,
-            List.of(new TargetCorner()),
-            List.of(new TargetCorner())
-        );
+        : kEmptyTarget;
     }
 
     /**
@@ -217,17 +199,34 @@ public class Vision extends SubsystemBase {
     }
 
     /**
-     * Gets the Yaw of the Highest priority tag in the given array
+     * Gets the Highest priority tag in the given array
      * 
      * @param IDs List of IDs ordered from most significant to least significant
      * @return
      */
-    public double getTagYawsWithPriority(int[] IDs) {
+    public PhotonTrackedTarget getTagsWithPriority(int[] IDs) {
 
-        // loop over the array and whichever tag is visible first gets is yaw returned
-        for (int ID : IDs) if (getTagVisible(ID)) return getTag(ID).getYaw();
+        // loop over the array and whichever tag is visible first gets returned
+        for (int ID : IDs) if (getTagVisible(ID)) return getTag(ID);
 
         // if there aren't any tags visible
-        return 0.0;
+        return kEmptyTarget;
+    }
+
+    public PhotonTrackedTarget getClosestTag(int[] IDs) {
+        var closest = kMaxTarget;
+        for (int ID : IDs)
+            if (getTag(ID).getBestCameraToTarget().getX() < closest.getBestCameraToTarget().getX())
+                closest = getTag(ID);
+        // Check to see if the closest target is still kMaxTarget
+        return closest.equals(kMaxTarget) ? kEmptyTarget : closest;
+    }
+
+    public PhotonTrackedTarget getFarthestTag(int[] IDs) {
+        var furthest = kEmptyTarget;
+        for (int ID : IDs)
+            if (getTag(ID).getBestCameraToTarget().getX() > furthest.getBestCameraToTarget().getX())
+                furthest = getTag(ID);
+        return furthest;
     }
 }

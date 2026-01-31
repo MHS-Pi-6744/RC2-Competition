@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import java.util.List;
+
+import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.targeting.TargetCorner;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -132,5 +137,41 @@ public final class Constants {
     // The layout of the AprilTags on the field
     public static final AprilTagFieldLayout kTagLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    /**
+     * Placeholder target with almost all fields maxxed out
+     */
+    public static final PhotonTrackedTarget kMaxTarget =
+        new PhotonTrackedTarget(
+            Double.MAX_VALUE,
+            Double.MAX_VALUE,
+            Double.MAX_VALUE,
+            Double.MAX_VALUE,
+            -1,
+            Integer.MAX_VALUE,
+            Float.MAX_VALUE,
+            new Transform3d(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, new Rotation3d(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE)),
+            new Transform3d(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, new Rotation3d(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE)),
+            Double.MAX_VALUE,
+            List.of(new TargetCorner()),
+            List.of(new TargetCorner())
+        );
+    /**
+     * Placeholder target with almost all fields zeroed out
+     */
+    public static final PhotonTrackedTarget kEmptyTarget =
+        new PhotonTrackedTarget(
+            0,
+            0,
+            0,
+            0,
+            -1,
+            0,
+            0,
+            new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0)),
+            new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0)),
+            0,
+            List.of(new TargetCorner()),
+            List.of(new TargetCorner())
+        );
   }
 }
