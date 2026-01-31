@@ -73,7 +73,7 @@ public class RobotContainer {
 
                 /* */
                 -MathUtil.applyDeadband(m_driverController.a().getAsBoolean()
-                ? vision.safeGetTagYaw(25) / 180
+                ? vision.getTag(25).getYaw() / 180
                 : m_driverController.getRightX(),
                 OIConstants.kDriveDeadband),
                 // */

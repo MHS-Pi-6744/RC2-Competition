@@ -4,10 +4,17 @@ import static frc.robot.Constants.VisionConstants.kCameraName;
 import static frc.robot.Constants.VisionConstants.kRobotToCam;
 import static frc.robot.Constants.VisionConstants.kTagLayout;
 
+import java.util.List;
+
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.targeting.TargetCorner;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -28,6 +35,9 @@ public class Vision extends SubsystemBase {
      */
     PhotonTrackedTarget[] targets;
 
+    Sendable s_tag25 = aprilTagSendable(25);
+    Sendable s_tag26 = aprilTagSendable(26);
+
     public Vision() {
         camera = new PhotonCamera(kCameraName);
         photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
@@ -37,11 +47,31 @@ public class Vision extends SubsystemBase {
     @Override
     public void periodic() {
         refreshTags();
-        SmartDashboard.putNumber("Tag #25 Yaw", safeGetTagYaw(25));
-        SmartDashboard.putBoolean("Tag #25 Visible", getTagVisible(25));
-        SmartDashboard.putNumber("Tag #26 Yaw", safeGetTagYaw(26));
-        SmartDashboard.putBoolean("Tag #26 Visible", getTagVisible(26));
+        SmartDashboard.putData("Tag #25", s_tag25);
+        SmartDashboard.putData("Tag #26", s_tag26);
         SmartDashboard.putNumber("Average of Tags", getAverageTagsYaw(new int[]{25, 26}));
+        SmartDashboard.putNumber("Priority: 25, 26", getTagYawsWithPriority(new int[]{25, 26}));
+    }
+
+    /**
+     * Creates a sendable for an april tag
+     * 
+     * @param ID The Tag to create the builder for
+     * @author MattheDev53
+     */
+    private final Sendable aprilTagSendable(int ID) {
+        return new Sendable() {
+            @Override
+            public void initSendable(SendableBuilder builder) {
+                builder.addBooleanProperty("Tag #"+ID+" Visible", () -> getTagVisible(ID), null);
+
+                builder.addDoubleProperty("Tag #"+ID+" Yaw", () -> getTag(ID).getYaw(), null);
+                builder.addDoubleProperty("Tag #"+ID+" Skew", () -> getTag(ID).getSkew(), null);
+                builder.addDoubleProperty("Tag #"+ID+" Area", () -> getTag(ID).getArea(), null);
+                builder.addDoubleProperty("Tag #"+ID+" Pitch", () -> getTag(ID).getPitch(), null);
+                builder.addDoubleProperty("Tag #"+ID+" Ambiguity", () -> getTag(ID).getPoseAmbiguity(), null);
+            }
+        };
     }
     
     /**
@@ -77,26 +107,47 @@ public class Vision extends SubsystemBase {
      * Gets an AprilTag's Info from the camera 
      * 
      * @param ID the ID to get
-     * @return the {@link PhotonTrackedTarget} that corresponds to the ID passed in
+     * @return the {@link PhotonTrackedTarget}
+     * that corresponds to the ID passed in. May return {@code null}.
      * @apiNote <b>THIS FUNCTION IS UNSAFE!!</b>
-     * Please write a helper function that has a check making sure the tag is not {@code null}
-     * to get the property you need.
+     * please only use this when you are absolutely certain you
+     * want to get an unsafe tag
      * @author MattheDev53
      */
-    public PhotonTrackedTarget getTag(int ID) {
+    private PhotonTrackedTarget unsafeGetTag(int ID) {
         return targets[ID];
     }
 
     /**
-     * Safely gets the Yaw of a certain tag
+     * Gets a Tag based on ID
      * 
-     * @param ID The ID of the Tag you wish to get a Yaw value from
-     * @return if ({@link #getTagSafety(ID)} == false) return 0.0;
-     * Otherwise, the Yaw of the specified AprilTag
+     * @param ID The ID of the Tag to get
+     * @return The tag with the fiducial ID of the {@code ID} param
+     * @apiNote If the requested tag is null, this method will return
+     * a completely zeroed out Target. Previously, you would have had
+     * to make a function that checks if a given tag is safe or not
+     * before returning the value you want. This simplifies things by
+     * making it return a fully zeroed out Target. I can't really
+     * explain why I didn't do this sooner.
      * @author MattheDev53
      */
-    public double safeGetTagYaw(int ID) {
-        return getTagSafety(ID) ? getTag(ID).getYaw() : 0.0;
+    public PhotonTrackedTarget getTag(int ID) {
+        return getTagSafety(ID)
+        ? unsafeGetTag(ID)
+        : new PhotonTrackedTarget(
+            0,
+            0,
+            0,
+            0,
+            -1,
+            0,
+            0,
+            new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0)),
+            new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0)),
+            0,
+            List.of(new TargetCorner()),
+            List.of(new TargetCorner())
+        );
     }
 
     /**
@@ -112,7 +163,7 @@ public class Vision extends SubsystemBase {
      * @author MattheDev53
      */
     private boolean getTagSafety(int ID) {
-        return getTag(ID) == null ? false : true;
+        return unsafeGetTag(ID) == null ? false : true;
     }
 
     /**
@@ -155,7 +206,7 @@ public class Vision extends SubsystemBase {
 
         // Loop through all IDs passed in
         for (int ID : IDs) {
-            yawTotal += safeGetTagYaw(ID);
+            yawTotal += getTag(ID).getYaw();
 
             // Tags that are not visible do not affect the divisor
             if (getTagVisible(ID)) divisor++;
@@ -163,5 +214,20 @@ public class Vision extends SubsystemBase {
 
         // Avoid Divide by Zero Error
         return divisor == 0 ? 0.0 : yawTotal / divisor;
+    }
+
+    /**
+     * Gets the Yaw of the Highest priority tag in the given array
+     * 
+     * @param IDs List of IDs ordered from most significant to least significant
+     * @return
+     */
+    public double getTagYawsWithPriority(int[] IDs) {
+
+        // loop over the array and whichever tag is visible first gets is yaw returned
+        for (int ID : IDs) if (getTagVisible(ID)) return getTag(ID).getYaw();
+
+        // if there aren't any tags visible
+        return 0.0;
     }
 }
