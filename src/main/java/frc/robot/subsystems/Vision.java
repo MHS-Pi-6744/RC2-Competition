@@ -31,6 +31,11 @@ public class Vision extends SubsystemBase {
     Sendable s_tag25 = aprilTagSendable(25);
     Sendable s_tag26 = aprilTagSendable(26);
 
+    /**
+     * Creates a vision subsystem. So much work went into this.
+     * 
+     * @author MattheDev53
+     */
     public Vision() {
         camera = new PhotonCamera(kCameraName);
         photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
@@ -202,7 +207,7 @@ public class Vision extends SubsystemBase {
      * Gets the Highest priority tag in the given array
      * 
      * @param IDs List of IDs ordered from most significant to least significant
-     * @return
+     * @return the highest, visible target
      */
     public PhotonTrackedTarget getTagsWithPriority(int[] IDs) {
 
@@ -213,19 +218,27 @@ public class Vision extends SubsystemBase {
         return kEmptyTarget;
     }
 
+    /**
+     * @param IDs Tags to consider
+     * @return the closest targrt
+     */
     public PhotonTrackedTarget getClosestTag(int[] IDs) {
         var closest = kMaxTarget;
         for (int ID : IDs)
-            if (getTag(ID).getBestCameraToTarget().getX() < closest.getBestCameraToTarget().getX())
+            if (getTag(ID).getBestCameraToTarget().getX() < closest.getBestCameraToTarget().getX() && getTagVisible(ID))
                 closest = getTag(ID);
         // Check to see if the closest target is still kMaxTarget
         return closest.equals(kMaxTarget) ? kEmptyTarget : closest;
     }
 
+    /**
+     * @param IDs Tags to consider
+     * @return the furthest target
+     */
     public PhotonTrackedTarget getFarthestTag(int[] IDs) {
         var furthest = kEmptyTarget;
         for (int ID : IDs)
-            if (getTag(ID).getBestCameraToTarget().getX() > furthest.getBestCameraToTarget().getX())
+            if (getTag(ID).getBestCameraToTarget().getX() > furthest.getBestCameraToTarget().getX() && getTagVisible(ID))
                 furthest = getTag(ID);
         return furthest;
     }
