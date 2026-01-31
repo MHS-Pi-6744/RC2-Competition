@@ -39,6 +39,9 @@ public class Vision extends SubsystemBase {
         refreshTags();
         SmartDashboard.putNumber("Tag #25 Yaw", safeGetTagYaw(25));
         SmartDashboard.putBoolean("Tag #25 Visible", getTagVisible(25));
+        SmartDashboard.putNumber("Tag #26 Yaw", safeGetTagYaw(26));
+        SmartDashboard.putBoolean("Tag #26 Visible", getTagVisible(26));
+        SmartDashboard.putNumber("Average of Tags", getAverageTagsYaw(new int[]{25, 26}));
     }
     
     /**
@@ -88,12 +91,12 @@ public class Vision extends SubsystemBase {
      * Safely gets the Yaw of a certain tag
      * 
      * @param ID The ID of the Tag you wish to get a Yaw value from
-     * @return if ({@link #getTag(ID)} == null) return 0.0;
+     * @return if ({@link #getTagSafety(ID)} == false) return 0.0;
      * Otherwise, the Yaw of the specified AprilTag
      * @author MattheDev53
      */
     public double safeGetTagYaw(int ID) {
-        return getTagSafety(ID) ? 0.0 : getTag(ID).getYaw();
+        return getTagSafety(ID) ? getTag(ID).getYaw() : 0.0;
     }
 
     /**
