@@ -4,8 +4,11 @@ import static frc.robot.Constants.VisionConstants.*;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,6 +34,8 @@ public class Vision extends SubsystemBase {
     Sendable s_tag25 = aprilTagSendable(25);
     Sendable s_tag26 = aprilTagSendable(26);
 
+    Pose3d p_estimated;
+
     /**
      * Creates a vision subsystem. So much work went into this.
      * 
@@ -50,6 +55,10 @@ public class Vision extends SubsystemBase {
         SmartDashboard.putNumber("Closest Test", getClosestTag(new int[]{25, 26}).getYaw());
         SmartDashboard.putNumber("Average of Tags", getAverageTagsYaw(new int[]{25, 26}));
         SmartDashboard.putNumber("Priority: 25, 26", getTagsWithPriority(new int[]{25, 26}).getYaw());
+    }
+
+    public Pose2d getPose2d() {
+        return p_estimated.toPose2d();
     }
 
     /**
@@ -92,6 +101,12 @@ public class Vision extends SubsystemBase {
 
             // are there any targets in the result?
             if (result.hasTargets()) {
+
+                if (kTagLayout.getTagPose(result.getBestTarget().getFiducialId()).isPresent())
+                    p_estimated = PhotonUtils.estimateFieldToRobotAprilTag(
+                        result.getBestTarget().getBestCameraToTarget(),
+                        kTagLayout.getTagPose(result.getBestTarget().getFiducialId()).get(),
+                        kRobotToCam);
 
                 // loop through all of the targets
                 for (var target : result.getTargets()) {

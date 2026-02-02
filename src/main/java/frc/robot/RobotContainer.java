@@ -94,7 +94,7 @@ public class RobotContainer {
     m_driverController.rightBumper().whileTrue(new InstantCommand(() -> m_robotDrive.setX()));
     // m_driverController.rightTrigger().whileTrue(m_intake.runIntakeCommand());
     // m_driverController.leftTrigger().whileTrue(m_intake.runExtakeCommand());
-    m_driverController.start().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
+    m_driverController.start().onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(vision.getPose2d())));
   }
 
     /**
