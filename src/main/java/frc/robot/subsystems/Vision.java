@@ -71,14 +71,16 @@ public class Vision extends SubsystemBase {
         return new Sendable() {
             @Override
             public void initSendable(SendableBuilder builder) {
-                builder.addBooleanProperty("Tag #"+ID+" Visible", () -> getTagVisible(ID), null);
+                String tagPrefix = "Tag #"+ID+" ";
+                builder.addBooleanProperty(tagPrefix+"Visible", () -> getTagVisible(ID), null);
 
-                builder.addDoubleProperty("Tag #"+ID+" Yaw", () -> getTag(ID).getYaw(), null);
-                builder.addDoubleProperty("Tag #"+ID+" Skew", () -> getTag(ID).getSkew(), null);
-                builder.addDoubleProperty("Tag #"+ID+" Area", () -> getTag(ID).getArea(), null);
-                builder.addDoubleProperty("Tag #"+ID+" Pitch", () -> getTag(ID).getPitch(), null);
-                builder.addDoubleProperty("Tag #"+ID+" Ambiguity", () -> getTag(ID).getPoseAmbiguity(), null);
-                builder.addDoubleProperty("Tag #"+ID+" X", () -> getTag(ID).getBestCameraToTarget().getX(), null);
+                builder.addDoubleProperty(tagPrefix+"Yaw", () -> getTag(ID).getYaw(), null);
+                builder.addDoubleProperty(tagPrefix+"Area", () -> getTag(ID).getArea(), null);
+                builder.addDoubleProperty(tagPrefix+"Pitch", () -> getTag(ID).getPitch(), null);
+                builder.addDoubleProperty(tagPrefix+"Ambiguity", () -> getTag(ID).getPoseAmbiguity(), null);
+                builder.addDoubleProperty(tagPrefix+"X", () -> getTag(ID).getBestCameraToTarget().getX(), null);
+                builder.addDoubleProperty(tagPrefix+"Y", () -> getTag(ID).getBestCameraToTarget().getY(), null);
+                builder.addDoubleProperty(tagPrefix+"Z", () -> getTag(ID).getBestCameraToTarget().getZ(), null);
             }
         };
     }
