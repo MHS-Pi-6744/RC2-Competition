@@ -55,7 +55,7 @@ public class Vision extends SubsystemBase {
     /**
      * Creates a sendable for an april tag
      * 
-     * @param ID The Tag to create the builder for
+     * @param ID The Tag to create the Sendable for
      * @author MattheDev53
      */
     private final Sendable aprilTagSendable(int ID) {
@@ -220,7 +220,7 @@ public class Vision extends SubsystemBase {
 
     /**
      * @param IDs Tags to consider
-     * @return the closest targrt
+     * @return the closest target
      */
     public PhotonTrackedTarget getClosestTag(int[] IDs) {
         var closest = kMaxTarget;
