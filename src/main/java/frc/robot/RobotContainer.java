@@ -44,7 +44,7 @@ public class RobotContainer {
     // The robot's subsystems
     private final DriveSubsystem m_robotDrive = new DriveSubsystem();
     // private final IntakeSubsystem m_intake = new IntakeSubsystem();
-    private final Vision vision = new Vision();
+    private final Vision vision = new Vision(m_robotDrive::addVisionMeasurement);
 
     // The driver's controller
     CommandXboxController m_driverController = new CommandXboxController(OIConstants.kDriverControllerPort);

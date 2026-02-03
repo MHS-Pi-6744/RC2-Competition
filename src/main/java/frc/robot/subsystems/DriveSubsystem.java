@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -17,6 +18,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -111,135 +114,145 @@ public class DriveSubsystem extends SubsystemBase {
         SmartDashboard.putData("Cam2 Field2d", m_fieldSendable);
     }
 
-  /**
-   * Returns the currently-estimated pose of the robot.
-   *
-   * @return The pose.
-   */
-  public Pose2d getPose() {
-    return poseEstimator.getEstimatedPosition(); // m_odometry.getPoseMeters();
-  }
+    /** See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double)}. */
+    public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds) {
+        poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds);
+    }
 
-  /**
-   * Resets the odometry to the specified pose.
-   *
-   * @param pose The pose to which to set the odometry.
-   */
-  public void resetOdometry(Pose2d pose) {
-    /*
-    m_odometry.resetPosition(
-        m_gyro.getRotation2d(),
-        new SwerveModulePosition[] {
-            m_frontLeft.getPosition(),
-            m_frontRight.getPosition(),
-            m_rearLeft.getPosition(),
-            m_rearRight.getPosition()
-        },
-        pose);
+    /** See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double, Matrix)}. */
+    public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
+        poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
+    }
+
+    /**
+     * Returns the currently-estimated pose of the robot.
+     *
+     * @return The pose.
      */
-    poseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);
-  }
+    public Pose2d getPose() {
+        return poseEstimator.getEstimatedPosition(); // m_odometry.getPoseMeters();
+    }
 
-  /**
-   * Method to drive the robot using joystick info.
-   *
-   * @param xSpeed        Speed of the robot in the x direction (forward).
-   * @param ySpeed        Speed of the robot in the y direction (sideways).
-   * @param rot           Angular rate of the robot.
-   * @param fieldRelative Whether the provided x and y speeds are relative to the
-   *                      field.
-   */
-  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-    // Convert the commanded speeds into the correct units for the drivetrain
-    double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-    double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-    double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
+    /**
+     * Resets the odometry to the specified pose.
+     *
+     * @param pose The pose to which to set the odometry.
+     */
+    public void resetOdometry(Pose2d pose) {
+        /*
+        m_odometry.resetPosition(
+            m_gyro.getRotation2d(),
+            new SwerveModulePosition[] {
+                m_frontLeft.getPosition(),
+                m_frontRight.getPosition(),
+                m_rearLeft.getPosition(),
+                m_rearRight.getPosition()
+            },
+            pose);
+        */
+        poseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);
+    }
 
-    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-        fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                m_gyro.getRotation2d())
-            : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(swerveModuleStates[0]);
-    m_frontRight.setDesiredState(swerveModuleStates[1]);
-    m_rearLeft.setDesiredState(swerveModuleStates[2]);
-    m_rearRight.setDesiredState(swerveModuleStates[3]);
-  }
+    /**
+     * Method to drive the robot using joystick info.
+     *
+     * @param xSpeed        Speed of the robot in the x direction (forward).
+     * @param ySpeed        Speed of the robot in the y direction (sideways).
+     * @param rot           Angular rate of the robot.
+     * @param fieldRelative Whether the provided x and y speeds are relative to the
+     *                      field.
+     */
+    public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+        // Convert the commanded speeds into the correct units for the drivetrain
+        double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
+        double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
+        double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
 
-  /**
-   * Sets the wheels into an X formation to prevent movement.
-   */
-  public void setX() {
-    m_frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-    m_frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-    m_rearLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-    m_rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-  }
+        var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
+            fieldRelative
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
+                    m_gyro.getRotation2d())
+                : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+        SwerveDriveKinematics.desaturateWheelSpeeds(
+            swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+        m_frontLeft.setDesiredState(swerveModuleStates[0]);
+        m_frontRight.setDesiredState(swerveModuleStates[1]);
+        m_rearLeft.setDesiredState(swerveModuleStates[2]);
+        m_rearRight.setDesiredState(swerveModuleStates[3]);
+    }
 
-  /**
-   * Sets the swerve ModuleStates.
-   *
-   * @param desiredStates The desired SwerveModule states.
-   */
-  public void setModuleStates(SwerveModuleState[] desiredStates) {
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(desiredStates[0]);
-    m_frontRight.setDesiredState(desiredStates[1]);
-    m_rearLeft.setDesiredState(desiredStates[2]);
-    m_rearRight.setDesiredState(desiredStates[3]);
-  }
+    /**
+     * Sets the wheels into an X formation to prevent movement.
+     */
+    public void setX() {
+        m_frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+        m_frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+        m_rearLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+        m_rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+    }
 
-  /** Resets the drive encoders to currently read a position of 0. */
-  public void resetEncoders() {
-    m_frontLeft.resetEncoders();
-    m_rearLeft.resetEncoders();
-    m_frontRight.resetEncoders();
-    m_rearRight.resetEncoders();
-  }
+    /**
+     * Sets the swerve ModuleStates.
+     *
+     * @param desiredStates The desired SwerveModule states.
+     */
+    public void setModuleStates(SwerveModuleState[] desiredStates) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(
+            desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
+        m_frontLeft.setDesiredState(desiredStates[0]);
+        m_frontRight.setDesiredState(desiredStates[1]);
+        m_rearLeft.setDesiredState(desiredStates[2]);
+        m_rearRight.setDesiredState(desiredStates[3]);
+    }
 
-  public SwerveModulePosition[] getModulePositions() {
-    return new SwerveModulePosition[] {
-      m_frontLeft.getPosition(),
-      m_frontRight.getPosition(),
-      m_rearLeft.getPosition(),
-      m_rearRight.getPosition()
-    };
-  }
+    /** Resets the drive encoders to currently read a position of 0. */
+    public void resetEncoders() {
+        m_frontLeft.resetEncoders();
+        m_rearLeft.resetEncoders();
+        m_frontRight.resetEncoders();
+        m_rearRight.resetEncoders();
+    }
 
-  /** Zeroes the heading of the robot. */
-  public void zeroHeading() {
-    m_gyro.reset();
-  }
+    public SwerveModulePosition[] getModulePositions() {
+        return new SwerveModulePosition[] {
+        m_frontLeft.getPosition(),
+        m_frontRight.getPosition(),
+        m_rearLeft.getPosition(),
+        m_rearRight.getPosition()
+        };
+    }
 
-  /**
-   * Returns the heading of the robot.
-   *
-   * @apiNote may differ from {@link #getGyroYaw()}
-   * @return {@link Rotation2d} that has the heading
-   */
-  public Rotation2d getHeading() {
-    return getPose().getRotation();
-  }
+    /** Zeroes the heading of the robot. */
+    public void zeroHeading() {
+        m_gyro.reset();
+    }
 
-  /**
-   * I wonder what this does...
-   * 
-   * @apiNote may differ from {@link #getHeading()}
-   * @return {@link Rotation2d} that has the gyro yaw
-   */
-  public Rotation2d getGyroYaw() {
-    return m_gyro.getRotation2d();
-  }
+    /**
+     * Returns the heading of the robot.
+     *
+     * @apiNote may differ from {@link #getGyroYaw()}
+     * @return {@link Rotation2d} that has the heading
+     */
+    public Rotation2d getHeading() {
+        return getPose().getRotation();
+    }
 
-  /**
-   * Returns the turn rate of the robot.
-   *
-   * @return The turn rate of the robot, in degrees per second
-   */
-  public double getTurnRate() {
-    return m_gyro.getAccelerationZ().getValueAsDouble(); // .getRate(IMUAxis.kZ) * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
-  }
+    /**
+     * I wonder what this does...
+     * 
+     * @apiNote may differ from {@link #getHeading()}
+     * @return {@link Rotation2d} that has the gyro yaw
+     */
+    public Rotation2d getGyroYaw() {
+        return m_gyro.getRotation2d();
+    }
+
+    /**
+     * Returns the turn rate of the robot.
+     *
+     * @return The turn rate of the robot, in degrees per second
+     */
+    public double getTurnRate() {
+        return m_gyro.getAccelerationZ().getValueAsDouble(); // .getRate(IMUAxis.kZ) * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+    }
 }
