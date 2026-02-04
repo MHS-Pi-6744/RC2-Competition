@@ -57,7 +57,7 @@ public class Vision extends SubsystemBase {
         this.estConsumer = estConsumer;
         camera = new PhotonCamera(kCameraName);
         photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
-        targets = new PhotonTrackedTarget[32];
+        targets = new PhotonTrackedTarget[50];
     }
     
     @Override
@@ -105,7 +105,7 @@ public class Vision extends SubsystemBase {
     private void refreshTags() {
         
         // Reset the list to make sure old values are cleared
-        targets = new PhotonTrackedTarget[32];
+        targets = new PhotonTrackedTarget[50];
         var results = camera.getAllUnreadResults();
 
         poseEstimation(results);
