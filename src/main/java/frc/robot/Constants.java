@@ -9,10 +9,14 @@ import java.util.List;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.targeting.TargetCorner;
 
+import com.pathplanner.lib.path.PathConstraints;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 // Math stuff
@@ -21,7 +25,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -56,7 +59,9 @@ public final class Constants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
     public static final double kMaxSpeedMetersPerSecond = 3; // 4.8;
+    public static final double kMaxAccelerationMetersPerSecondSq = 3; // 4.8;
     public static final double kMaxAngularSpeed = 1.5 * Math.PI; // 2 * Math.PI; // radians per second
+    public static final double kMaxAngularAcceleration = 1.5 * Math.PI; // 2 * Math.PI; // radians per second
 
     // Chassis configuration
     public static final double kTrackWidth = Units.inchesToMeters(24.5);
@@ -114,18 +119,16 @@ public final class Constants {
     }
 
     public static final class AutoConstants {
-        public static final double kMaxSpeedMetersPerSecond = 1; // 3;
-        public static final double kMaxAccelerationMetersPerSecondSquared = 1; // 3;
-        public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI/2; // Math.PI;
-        public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
-
-        public static final double kPXController = 1;
-        public static final double kPYController = 1;
-        public static final double kPThetaController = 1;
-
-        // Constraint for the motion profiled robot angle controller
-        public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
-            kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+        public static final PathConstraints kConstraints = new PathConstraints(
+            DriveConstants.kMaxSpeedMetersPerSecond,
+            DriveConstants.kMaxAccelerationMetersPerSecondSq,
+            DriveConstants.kMaxAngularSpeed,
+            DriveConstants.kMaxAngularAcceleration
+        );
+        public static final class BlueAlliance {
+            // Blue Climb [1.072586920185306, 4.635810571578379, -177.61452741672161]
+            public static final Pose2d kLeftClimb = new Pose2d(1, 4.5, Rotation2d.fromDegrees(0));
+        }
     }
 
     public static final class NeoMotorConstants {

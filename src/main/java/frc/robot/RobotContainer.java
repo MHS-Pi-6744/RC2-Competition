@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.AutoConstants.BlueAlliance;
 // Constants
 import frc.robot.Constants.OIConstants;
 // Subsystems
@@ -46,8 +48,16 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
 
+        Command pathfindingCommand = AutoBuilder.pathfindToPose(
+            BlueAlliance.kLeftClimb,
+            AutoConstants.kConstraints,
+            0.0 // Goal end velocity in meters/sec
+        );
+
         // Build an auto chooser. This will use Commands.none() as the default option.
         autoChooser = AutoBuilder.buildAutoChooser();
+
+        autoChooser.addOption("Test Pathfinding", pathfindingCommand);
 
         // Another option that allows you to specify the default auto by its name
         // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
