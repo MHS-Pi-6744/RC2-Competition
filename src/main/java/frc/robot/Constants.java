@@ -128,6 +128,7 @@ public final class Constants {
         public static final class BlueAlliance {
             // Blue Climb [1.072586920185306, 4.635810571578379, -177.61452741672161]
             public static final Pose2d kLeftClimb = new Pose2d(1, 4.5, Rotation2d.fromDegrees(0));
+            public static final Pose2d kRightClimb = new Pose2d(1, 2.67, Rotation2d.fromDegrees(180));
         }
     }
 

@@ -41,6 +41,12 @@ public class RobotContainer {
     // The driver's controller
     CommandXboxController m_driverController = new CommandXboxController(OIConstants.kDriverControllerPort);
 
+    Command pathfindingCommand = AutoBuilder.pathfindToPose(
+        BlueAlliance.kLeftClimb,
+        AutoConstants.kConstraints,
+        0.0 // Goal end velocity in meters/sec
+    );
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -48,11 +54,6 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
 
-        Command pathfindingCommand = AutoBuilder.pathfindToPose(
-            BlueAlliance.kLeftClimb,
-            AutoConstants.kConstraints,
-            0.0 // Goal end velocity in meters/sec
-        );
 
         // Build an auto chooser. This will use Commands.none() as the default option.
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -91,6 +92,7 @@ public class RobotContainer {
         // m_driverController.rightTrigger().whileTrue(m_intake.runIntakeCommand());
         // m_driverController.leftTrigger().whileTrue(m_intake.runExtakeCommand());
         m_driverController.start().onTrue(new InstantCommand(() -> m_robotDrive.resetPose(vision.getPose2d())));
+        m_driverController.b().onTrue(pathfindingCommand);
     }
 
     /**
