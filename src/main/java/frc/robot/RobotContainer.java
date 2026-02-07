@@ -8,7 +8,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 
 // Math stuff
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -68,7 +67,12 @@ public class RobotContainer {
     Trigger onBlueAlliance = new Trigger(() -> !isRedAlliance());
     Trigger onRedAlliance = new Trigger(() -> isRedAlliance());
 
-    private boolean tagAssistedDriving;
+    public enum DrivingMode {
+        kNormal,
+        kTagAssisted
+    }
+
+    private DrivingMode drivingMode;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -77,7 +81,7 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
 
-        tagAssistedDriving = false;
+        drivingMode = DrivingMode.kNormal;
 
         // Build an auto chooser. This will use Commands.none() as the default option.
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -101,21 +105,30 @@ public class RobotContainer {
         // */
     }
 
-    private void enableTAD() {
+    private void driveTagAssisted() {
         m_driverController.setRumble(RumbleType.kBothRumble, 0.5);
-        tagAssistedDriving = true;
+        drivingMode = DrivingMode.kTagAssisted;
     }
 
-    private void disableTAD() {
+    private void driveNormal() {
         m_driverController.setRumble(RumbleType.kBothRumble, 0);
-        tagAssistedDriving = false;
+        drivingMode = DrivingMode.kNormal;
     }
 
+    /**
+     * Gets the rotation of the robot based on the driving mode
+     * 
+     * @return the double to pass to {@link DriveSubsystem#drive()} as rot
+     */
     private double getDriveRot() {
-        if (tagAssistedDriving)
+        switch (drivingMode) {
+        case kNormal:
+            return m_driverController.getRightX();
+        case kTagAssisted:
             return vision.getTag(25).getYaw() / 180;
-
-        return m_driverController.getRightX();
+        default:
+            return m_driverController.getRightX();
+        }
     }
 
     public double easeInCirc(double x) {
@@ -137,8 +150,8 @@ public class RobotContainer {
         m_driverController.b().and(onRedAlliance)
                 .onTrue(pathfindLeftClimbRed);
         m_driverController.a()
-                .onTrue(new InstantCommand(() -> enableTAD()))
-                .onFalse(new InstantCommand(() -> disableTAD()));
+                .onTrue(new InstantCommand(() -> driveTagAssisted()))
+                .onFalse(new InstantCommand(() -> driveNormal()));
     }
 
     /**

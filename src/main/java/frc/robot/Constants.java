@@ -142,8 +142,9 @@ public final class Constants {
 
     public static final class VisionConstants {
         public static final String kCameraName = "Cam2";
-        // Cam mounted facing forward, half a meter forward of center, half a meter up
-        // from center.
+        /**
+         * Where is the camera mounted relative to robot center?
+         */
         public static final Transform3d kRobotToCam = new Transform3d(
                 new Translation3d(
                         Units.inchesToMeters(6),
