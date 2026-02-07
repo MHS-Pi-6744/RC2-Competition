@@ -131,10 +131,6 @@ public class RobotContainer {
         }
     }
 
-    public double easeInCirc(double x) {
-        return 1 - Math.sqrt(1 - Math.pow(x, 2));
-    }
-
     /**
      * Use this method to define your button->command mappings.
      */

@@ -126,7 +126,8 @@ public final class Constants {
                 DriveConstants.kMaxAngularAcceleration);
 
         public static final class BlueAlliance {
-            public static final Pose2d kLeftClimb = new Pose2d(1, 4.5, Rotation2d.fromDegrees(0));
+            // [0.9781092627094603, 4.651867655668605, 0.23733570893866954]
+            public static final Pose2d kLeftClimb = new Pose2d(0.9781092627094603, 4.651867655668605, Rotation2d.fromDegrees(0));
             public static final Pose2d kRightClimb = new Pose2d(1, 2.5, Rotation2d.fromDegrees(180));
         }
 
