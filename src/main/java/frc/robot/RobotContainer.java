@@ -8,6 +8,9 @@ import com.pathplanner.lib.auto.AutoBuilder;
 
 // Math stuff
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // WpiLib2 stuff
@@ -15,8 +18,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.AutoConstants.BlueAlliance;
+import frc.robot.Constants.AutoConstants.RedAlliance;
 // Constants
 import frc.robot.Constants.OIConstants;
 // Subsystems
@@ -39,13 +44,31 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser;
 
     // The driver's controller
-    CommandXboxController m_driverController = new CommandXboxController(OIConstants.kDriverControllerPort);
+    public CommandXboxController m_driverController = new CommandXboxController(OIConstants.kDriverControllerPort);
 
-    Command pathfindingCommand = AutoBuilder.pathfindToPose(
-        BlueAlliance.kLeftClimb,
-        AutoConstants.kConstraints,
-        0.0 // Goal end velocity in meters/sec
+    Command pathfindLeftClimbBlue = AutoBuilder.pathfindToPose(
+            BlueAlliance.kLeftClimb,
+            AutoConstants.kConstraints,
+            0.0 // Goal end velocity in meters/sec
     );
+
+    Command pathfindLeftClimbRed = AutoBuilder.pathfindToPose(
+            RedAlliance.kLeftClimb,
+            AutoConstants.kConstraints,
+            0.0 // Goal end velocity in meters/sec
+    );
+
+    public boolean isRedAlliance() {
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent())
+            return alliance.get() == DriverStation.Alliance.Red;
+        return false;
+    }
+
+    Trigger onBlueAlliance = new Trigger(() -> !isRedAlliance());
+    Trigger onRedAlliance = new Trigger(() -> isRedAlliance());
+
+    private boolean tagAssistedDriving;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -54,14 +77,10 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
 
+        tagAssistedDriving = false;
 
         // Build an auto chooser. This will use Commands.none() as the default option.
         autoChooser = AutoBuilder.buildAutoChooser();
-
-        autoChooser.addOption("Test Pathfinding", pathfindingCommand);
-
-        // Another option that allows you to specify the default auto by its name
-        // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -71,28 +90,55 @@ public class RobotContainer {
                 // The left stick controls translation of the robot.
                 // Turning is controlled by the X axis of the right stick.
                 new RunCommand(() -> m_robotDrive.drive(
-                    -MathUtil.applyDeadband(m_driverController.getLeftY(),
-                        OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.getLeftX(),
-                        OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.a().getAsBoolean()
-                        ? vision.getTag(25).getYaw() / 180
-                        : m_driverController.getRightX(),
-                        OIConstants.kDriveDeadband),
-                    true),
-                    m_robotDrive, vision));
+                        -MathUtil.applyDeadband(m_driverController.getLeftY(),
+                                OIConstants.kDriveDeadband),
+                        -MathUtil.applyDeadband(m_driverController.getLeftX(),
+                                OIConstants.kDriveDeadband),
+                        -MathUtil.applyDeadband(getDriveRot(),
+                                OIConstants.kDriveDeadband),
+                        true),
+                        m_robotDrive, vision));
         // */
+    }
+
+    private void enableTAD() {
+        m_driverController.setRumble(RumbleType.kBothRumble, 0.5);
+        tagAssistedDriving = true;
+    }
+
+    private void disableTAD() {
+        m_driverController.setRumble(RumbleType.kBothRumble, 0);
+        tagAssistedDriving = false;
+    }
+
+    private double getDriveRot() {
+        if (tagAssistedDriving)
+            return vision.getTag(25).getYaw() / 180;
+
+        return m_driverController.getRightX();
+    }
+
+    public double easeInCirc(double x) {
+        return 1 - Math.sqrt(1 - Math.pow(x, 2));
     }
 
     /**
      * Use this method to define your button->command mappings.
      */
     private void configureButtonBindings() {
-        m_driverController.rightBumper().whileTrue(new InstantCommand(() -> m_robotDrive.setX()));
+        m_driverController.rightBumper()
+                .whileTrue(new InstantCommand(() -> m_robotDrive.setX()));
         // m_driverController.rightTrigger().whileTrue(m_intake.runIntakeCommand());
         // m_driverController.leftTrigger().whileTrue(m_intake.runExtakeCommand());
-        m_driverController.start().onTrue(new InstantCommand(() -> m_robotDrive.resetPose(vision.getPose2d())));
-        m_driverController.b().onTrue(pathfindingCommand);
+        m_driverController.start()
+                .onTrue(new InstantCommand(() -> m_robotDrive.resetPose(vision.getPose2d())));
+        m_driverController.b().and(onBlueAlliance)
+                .onTrue(pathfindLeftClimbBlue);
+        m_driverController.b().and(onRedAlliance)
+                .onTrue(pathfindLeftClimbRed);
+        m_driverController.a()
+                .onTrue(new InstantCommand(() -> enableTAD()))
+                .onFalse(new InstantCommand(() -> disableTAD()));
     }
 
     /**
