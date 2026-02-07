@@ -9,6 +9,7 @@ import java.util.List;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.targeting.TargetCorner;
 
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -94,6 +95,9 @@ public final class Constants {
         public static final int kGyroCanId = 9;
 
         public static final boolean kGyroReversed = false;
+
+        public static final PIDConstants kTranslationPID = new PIDConstants(0.0, 0.0, 0.0);
+        public static final PIDConstants kRotationPID    = new PIDConstants(0.0, 0.0, 0.0);
     }
 
     public static final class ModuleConstants {
@@ -127,7 +131,8 @@ public final class Constants {
 
         public static final class BlueAlliance {
             // [0.9781092627094603, 4.651867655668605, 0.23733570893866954]
-            public static final Pose2d kLeftClimb = new Pose2d(0.9781092627094603, 4.651867655668605, Rotation2d.fromDegrees(0));
+            public static final Pose2d kLeftClimb = new Pose2d(1.00, 4.65, Rotation2d.fromDegrees(0));
+            // 
             public static final Pose2d kRightClimb = new Pose2d(1, 2.5, Rotation2d.fromDegrees(180));
         }
 
