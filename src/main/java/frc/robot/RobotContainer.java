@@ -6,7 +6,6 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
-// Math stuff
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -18,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.AutoConstants.BlueAlliance;
 import frc.robot.Constants.AutoConstants.RedAlliance;
@@ -85,6 +85,10 @@ public class RobotContainer {
 
         // Build an auto chooser. This will use Commands.none() as the default option.
         autoChooser = AutoBuilder.buildAutoChooser();
+        autoChooser.addOption("DynFwd", m_robotDrive.SysIDDynamic(Direction.kForward));
+        autoChooser.addOption("DynRev", m_robotDrive.SysIDDynamic(Direction.kReverse));
+        autoChooser.addOption("QasFwd", m_robotDrive.SysIDQuasistatic(Direction.kForward));
+        autoChooser.addOption("QasRev", m_robotDrive.SysIDQuasistatic(Direction.kReverse));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -103,6 +107,8 @@ public class RobotContainer {
                         true),
                         m_robotDrive, vision));
         // */
+
+        // If logging only to DataLog
     }
 
     private void driveTagAssisted() {
@@ -139,8 +145,8 @@ public class RobotContainer {
                 .whileTrue(new InstantCommand(() -> m_robotDrive.setX()));
         // m_driverController.rightTrigger().whileTrue(m_intake.runIntakeCommand());
         // m_driverController.leftTrigger().whileTrue(m_intake.runExtakeCommand());
-        m_driverController.start()
-                .onTrue(new InstantCommand(() -> m_robotDrive.resetPose(vision.getPose2d())));
+        // m_driverController.start()
+                // .onTrue(new InstantCommand(() -> m_robotDrive.resetPose(vision.getPose2d())));
         m_driverController.b().and(onBlueAlliance)
                 .onTrue(pathfindLeftClimbBlue);
         m_driverController.b().and(onRedAlliance)

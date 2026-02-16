@@ -4,6 +4,26 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.Constants.DriveConstants.kBackLeftChassisAngularOffset;
+import static frc.robot.Constants.DriveConstants.kBackRightChassisAngularOffset;
+import static frc.robot.Constants.DriveConstants.kDriveKinematics;
+import static frc.robot.Constants.DriveConstants.kFrontLeftChassisAngularOffset;
+import static frc.robot.Constants.DriveConstants.kFrontLeftDrivingCanId;
+import static frc.robot.Constants.DriveConstants.kFrontLeftTurningCanId;
+import static frc.robot.Constants.DriveConstants.kFrontRightChassisAngularOffset;
+import static frc.robot.Constants.DriveConstants.kFrontRightDrivingCanId;
+import static frc.robot.Constants.DriveConstants.kFrontRightTurningCanId;
+import static frc.robot.Constants.DriveConstants.kGyroCanId;
+import static frc.robot.Constants.DriveConstants.kMaxAngularSpeed;
+import static frc.robot.Constants.DriveConstants.kMaxSpeedMetersPerSecond;
+import static frc.robot.Constants.DriveConstants.kRearLeftDrivingCanId;
+import static frc.robot.Constants.DriveConstants.kRearLeftTurningCanId;
+import static frc.robot.Constants.DriveConstants.kRearRightDrivingCanId;
+import static frc.robot.Constants.DriveConstants.kRearRightTurningCanId;
+import static frc.robot.Constants.DriveConstants.kRotationPID;
+import static frc.robot.Constants.DriveConstants.kSysIDConfig;
+import static frc.robot.Constants.DriveConstants.kTranslationPID;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
@@ -23,13 +43,17 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import static frc.robot.Constants.DriveConstants.*;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 
 public class DriveSubsystem extends SubsystemBase {
     // Create MAXSwerveModules
@@ -84,6 +108,47 @@ public class DriveSubsystem extends SubsystemBase {
             m_field.setRobotPose(poseEstimator.getEstimatedPosition());
         };
     };
+
+    private final Sendable m_swerveSendable = new Sendable() {
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("SwerveDrive");
+
+        builder.addDoubleProperty("Front Left Angle", () -> m_frontLeft.getPosition().angle.getRadians(), null);
+        builder.addDoubleProperty("Front Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Front Right Angle", () -> m_frontRight.getPosition().angle.getRadians(), null);
+        builder.addDoubleProperty("Front Right Velocity", () -> m_frontRight.getState().speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Back Left Angle", () -> m_rearLeft.getPosition().angle.getRadians(), null);
+        builder.addDoubleProperty("Back Left Velocity", () -> m_rearLeft.getState().speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Back Right Angle", () -> m_rearRight.getPosition().angle.getRadians(), null);
+        builder.addDoubleProperty("Back Right Velocity", () -> m_rearRight.getState().speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Robot Angle", () -> m_gyro.getRotation2d().getRadians(), null);
+      }
+    };
+
+
+    Mechanism m_mechanism = new Mechanism(
+        (volts) -> voltageDrive(volts),
+        null,
+        this
+    );
+
+    public final SysIdRoutine routine = new SysIdRoutine(
+        kSysIDConfig,
+        m_mechanism
+    );
+
+    public Command SysIDDynamic(Direction way) {
+        return routine.dynamic(way);
+    }
+    
+    public Command SysIDQuasistatic(Direction way) {
+        return routine.quasistatic(way);
+    }
 
     /** Creates a new DriveSubsystem. */
     public DriveSubsystem() {
@@ -152,6 +217,7 @@ public class DriveSubsystem extends SubsystemBase {
         m_field.setRobotPose(poseEstimator.getEstimatedPosition());
 
         SmartDashboard.putData("Cam2 Field2d", m_fieldSendable);
+        SmartDashboard.putData("Swerve", m_swerveSendable);
     }
 
     /**
@@ -213,6 +279,8 @@ public class DriveSubsystem extends SubsystemBase {
         double ySpeedDelivered = ySpeed * kMaxSpeedMetersPerSecond;
         double rotDelivered = rot * kMaxAngularSpeed;
 
+        SmartDashboard.putNumber("Rot Delivered", rotDelivered);
+
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
@@ -267,6 +335,13 @@ public class DriveSubsystem extends SubsystemBase {
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);
+    }
+
+    private void voltageDrive(Voltage volts) {
+        m_rearLeft.voltageDrive(volts);
+        m_rearRight.voltageDrive(volts);
+        m_frontLeft.voltageDrive(volts);
+        m_frontRight.voltageDrive(volts);
     }
 
     private ChassisSpeeds getRobotRelativeSpeeds() {
