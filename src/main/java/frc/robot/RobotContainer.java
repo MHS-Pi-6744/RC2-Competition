@@ -4,39 +4,29 @@
 
 package frc.robot;
 
-// Math stuff
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-
-// WPILib stuff
-import edu.wpi.first.wpilibj.XboxController;
-
-// Constants
-import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.OIConstants;
-
-// Subsystems
-import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.Vision;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // WpiLib2 stuff
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
-// Java utils
-import java.util.List;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.AutoConstants.BlueAlliance;
+import frc.robot.Constants.AutoConstants.RedAlliance;
+// Constants
+import frc.robot.Constants.OIConstants;
+// Subsystems
+import frc.robot.subsystems.DriveSubsystem;
+// import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.Vision;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -45,93 +35,133 @@ import java.util.List;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems
-  private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  private final IntakeSubsystem m_intake = new IntakeSubsystem();
-  private final Vision vision = new Vision(m_robotDrive::addVisionMeasurement);
+    // The robot's subsystems
+    private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+    // private final IntakeSubsystem m_intake = new IntakeSubsystem();
+    private final Vision vision = new Vision(m_robotDrive::addVisionMeasurement);
 
-  // The driver's controller
-  CommandXboxController m_driverController = new CommandXboxController(OIConstants.kDriverControllerPort);
+    private final SendableChooser<Command> autoChooser;
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
-    // Configure the button bindings
-    configureButtonBindings();
+    // The driver's controller
+    public CommandXboxController m_driverController = new CommandXboxController(OIConstants.kDriverControllerPort);
 
-    // Configure default commands
-    m_robotDrive.setDefaultCommand(
-        // The left stick controls translation of the robot.
-        // Turning is controlled by the X axis of the right stick.
-        new RunCommand(
-            () -> m_robotDrive.drive(
-                -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
-                true),
-            m_robotDrive));
-  }
+    Command pathfindLeftClimbBlue = AutoBuilder.pathfindToPose(
+            BlueAlliance.kLeftClimb,
+            AutoConstants.kConstraints,
+            0.0 // Goal end velocity in meters/sec
+    );
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be
-   * created by
-   * instantiating a {@link edu.wpi.first.wpilibj.GenericHID} or one of its
-   * subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then calling
-   * passing it to a
-   * {@link JoystickButton}.
-   */
-  private void configureButtonBindings() {
-    m_driverController.rightBumper().whileTrue(new InstantCommand(() -> m_robotDrive.setX()));
-    m_driverController.rightTrigger().whileTrue(m_intake.runIntakeCommand());
-    m_driverController.leftTrigger().whileTrue(m_intake.runExtakeCommand());
-    m_driverController.start().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
-  }
+    Command pathfindLeftClimbRed = AutoBuilder.pathfindToPose(
+            RedAlliance.kLeftClimb,
+            AutoConstants.kConstraints,
+            0.0 // Goal end velocity in meters/sec
+    );
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    // Create config for trajectory
-    TrajectoryConfig config = new TrajectoryConfig(
-        AutoConstants.kMaxSpeedMetersPerSecond,
-        AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-        // Add kinematics to ensure max speed is actually obeyed
-        .setKinematics(DriveConstants.kDriveKinematics);
+    public boolean isRedAlliance() {
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent())
+            return alliance.get() == DriverStation.Alliance.Red;
+        return false;
+    }
 
-    // An example trajectory to follow. All units in meters.
-    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-        // Start at the origin facing the +X direction
-        new Pose2d(0, 0, new Rotation2d(0)),
-        // Pass through these two interior waypoints, making an 's' curve path
-        List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-        // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(3, 0, new Rotation2d(0)),
-        config);
+    Trigger onBlueAlliance = new Trigger(() -> !isRedAlliance());
+    Trigger onRedAlliance = new Trigger(() -> isRedAlliance());
 
-    var thetaController = new ProfiledPIDController(
-        AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    public enum DrivingMode {
+        kNormal,
+        kTagAssisted
+    }
 
-    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-        exampleTrajectory,
-        m_robotDrive::getPose, // Functional interface to feed supplier
-        DriveConstants.kDriveKinematics,
+    private DrivingMode drivingMode;
 
-        // Position controllers
-        new PIDController(AutoConstants.kPXController, 0, 0),
-        new PIDController(AutoConstants.kPYController, 0, 0),
-        thetaController,
-        m_robotDrive::setModuleStates,
-        m_robotDrive);
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() {
+        // Configure the button bindings
+        configureButtonBindings();
 
-    // Reset odometry to the starting pose of the trajectory.
-    m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
+        drivingMode = DrivingMode.kNormal;
 
-    // Run path following command, then stop at the end.
-    return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false));
-  }
+        // Build an auto chooser. This will use Commands.none() as the default option.
+        autoChooser = AutoBuilder.buildAutoChooser();
+        autoChooser.addOption("DynFwd", m_robotDrive.SysIDDynamic(Direction.kForward));
+        autoChooser.addOption("DynRev", m_robotDrive.SysIDDynamic(Direction.kReverse));
+        autoChooser.addOption("QasFwd", m_robotDrive.SysIDQuasistatic(Direction.kForward));
+        autoChooser.addOption("QasRev", m_robotDrive.SysIDQuasistatic(Direction.kReverse));
+
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+
+        // Configure default commands
+        /* */
+        m_robotDrive.setDefaultCommand(
+                // The left stick controls translation of the robot.
+                // Turning is controlled by the X axis of the right stick.
+                new RunCommand(() -> m_robotDrive.drive(
+                        -MathUtil.applyDeadband(m_driverController.getLeftY(),
+                                OIConstants.kDriveDeadband),
+                        -MathUtil.applyDeadband(m_driverController.getLeftX(),
+                                OIConstants.kDriveDeadband),
+                        -MathUtil.applyDeadband(getDriveRot(),
+                                OIConstants.kDriveDeadband),
+                        true),
+                        m_robotDrive, vision));
+        // */
+
+        // If logging only to DataLog
+    }
+
+    private void driveTagAssisted() {
+        m_driverController.setRumble(RumbleType.kBothRumble, 0.5);
+        drivingMode = DrivingMode.kTagAssisted;
+    }
+
+    private void driveNormal() {
+        m_driverController.setRumble(RumbleType.kBothRumble, 0);
+        drivingMode = DrivingMode.kNormal;
+    }
+
+    /**
+     * Gets the rotation of the robot based on the driving mode
+     * 
+     * @return the double to pass to {@link DriveSubsystem#drive()} as rot
+     */
+    private double getDriveRot() {
+        switch (drivingMode) {
+        case kNormal:
+            return m_driverController.getRightX();
+        case kTagAssisted:
+            return vision.getTag(25).getYaw() / 180;
+        default:
+            return m_driverController.getRightX();
+        }
+    }
+
+    /**
+     * Use this method to define your button->command mappings.
+     */
+    private void configureButtonBindings() {
+        m_driverController.rightBumper()
+                .whileTrue(new InstantCommand(() -> m_robotDrive.setX()));
+        // m_driverController.rightTrigger().whileTrue(m_intake.runIntakeCommand());
+        // m_driverController.leftTrigger().whileTrue(m_intake.runExtakeCommand());
+        // m_driverController.start()
+                // .onTrue(new InstantCommand(() -> m_robotDrive.resetPose(vision.getPose2d())));
+        m_driverController.b().and(onBlueAlliance)
+                .onTrue(pathfindLeftClimbBlue);
+        m_driverController.b().and(onRedAlliance)
+                .onTrue(pathfindLeftClimbRed);
+        m_driverController.a()
+                .onTrue(new InstantCommand(() -> driveTagAssisted()))
+                .onFalse(new InstantCommand(() -> driveNormal()));
+    }
+
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+    public Command getAutonomousCommand() {
+        return autoChooser.getSelected();
+    }
 }
