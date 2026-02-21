@@ -1,0 +1,26 @@
+src/main/deploy/pathplanner @MHS-Pi-6744/auto
+src/main/java/frc/robot/subsystems/Vision.java @MHS-Pi-6744/vision @MattheDev53
+
+# Drive Subsystem Adjacent things
+src/main/java/frc/robot/subsystems/DriveSubsystem.java @MattheDev53
+src/main/java/frc/robot/subsystems/MAXSwerveModule.java @MattheDev53
+
+src/main/java/frc/robot/subsystems/IntakeSubsystem.java @UnderTheBedStudios
+
+vendordeps/* @MHS-Pi-6744/senior-developers
+
+# Motor Configs
+src/main/java/frc/robot/Configs.java @MattheDev53 @UnderTheBedStudios
+
+# I wanna check & make sure stuff is right
+CODEOWNERS @MattheDev53
+
+# Things that should probably never change unless you know what you're doing
+*gradle* @MattheDev53 @MitchRM
+LICENSE.txt @MattheDev53 @MitchRM
+WPILib-License.md @MattheDev53 @MitchRM
+.wpilib/* @MattheDev53 @MitchRM
+
+# Template for new subsystems
+# Be sure to remove the leading hashtag (#) so that it isn't parsed as a comment
+# src/main/java/frc/robot/subsystems/{system name}.java @MHS-Pi-6744/{relevant team if needed} @{author}
