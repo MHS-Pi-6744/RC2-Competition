@@ -43,8 +43,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
  */
 public final class Constants {
     public static final class IntakeSubsystemConstants {
-        public static final int kIntakeMotorCanId = 2; // SPARK Flex CAN ID
-        public static final int kConveyorMotorCanId = 4; // SPARK Flex CAN ID
+        public static final int kIntakeMotorCanId = 13; // SPARK Flex CAN ID
+        public static final int kConveyorMotorCanId = 15; // SPARK Flex CAN ID
 
         public static final class IntakeSetpoints {
             public static final double kIntake = 0.6;
@@ -83,17 +83,17 @@ public final class Constants {
         public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
         // SPARK MAX CAN IDs
-        public static final int kFrontLeftDrivingCanId = 11;
-        public static final int kRearLeftDrivingCanId = 13;
-        public static final int kFrontRightDrivingCanId = 15;
-        public static final int kRearRightDrivingCanId = 17;
+        public static final int kFrontRightDrivingCanId = 5;
+        public static final int kFrontLeftDrivingCanId = 6;
+        public static final int kRearRightDrivingCanId = 7;
+        public static final int kRearLeftDrivingCanId = 8;
 
+        public static final int kFrontRightTurningCanId = 9;
         public static final int kFrontLeftTurningCanId = 10;
+        public static final int kRearRightTurningCanId = 11;
         public static final int kRearLeftTurningCanId = 12;
-        public static final int kFrontRightTurningCanId = 14;
-        public static final int kRearRightTurningCanId = 16;
 
-        public static final int kGyroCanId = 9;
+        public static final int kGyroCanId = 2;
 
         public static final boolean kGyroReversed = false;
 
