@@ -43,8 +43,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
  */
 public final class Constants {
     public static final class IntakeSubsystemConstants {
-        public static final int kIntakeMotorCanId = 2; // SPARK Flex CAN ID
-        public static final int kConveyorMotorCanId = 4; // SPARK Flex CAN ID
+        public static final int kIntakeMotorCanId = 13; // SPARK Flex CAN ID
+        public static final int kConveyorMotorCanId = 15; // SPARK Flex CAN ID
 
         public static final class IntakeSetpoints {
             public static final double kIntake = 0.6;
