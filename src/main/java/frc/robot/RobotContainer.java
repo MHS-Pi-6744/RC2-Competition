@@ -23,8 +23,10 @@ import frc.robot.Constants.AutoConstants.BlueAlliance;
 import frc.robot.Constants.AutoConstants.RedAlliance;
 // Constants
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.ApproachFuelCommand;
 // Subsystems
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.ObjectDetectionSubsystem;
 // import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Vision;
 
@@ -41,6 +43,9 @@ public class RobotContainer {
     private final Vision vision = new Vision(m_robotDrive::addVisionMeasurement);
 
     private final SendableChooser<Command> autoChooser;
+
+    private final ObjectDetectionSubsystem objectDetection = new ObjectDetectionSubsystem("photonCameraName");
+
 
     // The driver's controller
     public CommandXboxController m_driverController = new CommandXboxController(OIConstants.kDriverControllerPort);
@@ -154,6 +159,12 @@ public class RobotContainer {
         m_driverController.a()
                 .onTrue(new InstantCommand(() -> driveTagAssisted()))
                 .onFalse(new InstantCommand(() -> driveNormal()));
+
+
+         m_driverController.leftBumper()
+                .whileTrue(new ApproachFuelCommand(m_robotDrive, objectDetection));
+
+
     }
 
     /**
