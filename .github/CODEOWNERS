@@ -6,6 +6,7 @@
 /src/main/java/frc/robot/subsystems/MAXSwerveModule.java @MattheDev53
 
 /src/main/java/frc/robot/subsystems/IntakeSubsystem.java @UnderTheBedStudios
+/src/main/java/frc/robot/subsystems/FeederSubsystem.java @Lupeydev
 
 /vendordeps/* @MHS-Pi-6744/senior-developers
 

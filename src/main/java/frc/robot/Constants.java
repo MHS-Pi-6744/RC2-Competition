@@ -42,6 +42,67 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public static final class canIDs {
+        /**
+         * @apiNote SPARKmax - The competition robot will have 2 motors - conveyer and
+         *          feeder to shooter
+         * @apiNote This is the Feeder Motor Can ID
+         */
+        public static final int kFeederMotorBeltCanId = 15;
+
+        public static final int kFeederMotorWheelCanId = 16;
+
+        /**
+         * @apiNote SPARKmax - The competition robot will have 3 Sparkflex controlled
+         *          motors
+         * @apiNote This is the Shooter Motor Can ID
+         */
+        public static final int kFlywheelMotorCanId = 4;
+
+        /**
+         * @apiNote SPARKmax -
+         * @apiNote This is the Intake Motor Can ID
+         */
+        public static final int kIntakeMotorCanId = 9;
+
+        /**
+         * @apiNote SPARKmax -
+         * @apiNote This is the Pivot Motor of Intake Can ID
+         */
+        public static final int kPivotMotorCanId = 7;
+
+        /**
+         * @apiNote SPARKmax -
+         * @apiNote This is the Climber Motor Can ID
+         */
+        public static final int kClimbMotorCanId = 15;
+
+        // Others? PHD, RoboRio?
+    }
+
+    public static final class ShooterSubsystemConstants {
+        // SPARKmax CAN ID (Right)
+        // public static final int kFlywheelFollowerMotorCanId = 16; // SPARKmax CAN ID
+        // (Left)
+
+        public static final class FeederSetpoints {
+            public static final double kFeed = 0.15;
+        }
+
+        // Check these units - it looks to me like ShooterSubsystem is controlling in
+        // RPM??? Sr
+        public static final class FlywheelSetpoints {
+
+            /**
+             * @apiNote This controls how much the shooter will spin
+             * @apiNote PERCENTAGE
+             */
+
+            public static final double kShootPercent = 50;
+            public static final double kVelocityTolerance = 100;
+        }
+    }
+
     public static final class IntakeSubsystemConstants {
         public static final int kIntakeMotorCanId = 13; // SPARK Flex CAN ID
         public static final int kConveyorMotorCanId = 15; // SPARK Flex CAN ID
@@ -98,12 +159,11 @@ public final class Constants {
         public static final boolean kGyroReversed = false;
 
         public static final PIDConstants kTranslationPID = new PIDConstants(5.0, 0.0, 0.0);
-        public static final PIDConstants kRotationPID    = new PIDConstants(5.0, 0.0, 0.0);
+        public static final PIDConstants kRotationPID = new PIDConstants(5.0, 0.0, 0.0);
 
         public static final Config kSysIDConfig = new Config(
-            null, null, null,
-        null
-        );
+                null, null, null,
+                null);
     }
 
     public static final class ModuleConstants {
@@ -138,7 +198,7 @@ public final class Constants {
         public static final class BlueAlliance {
             // [0.9781092627094603, 4.651867655668605, 0.23733570893866954]
             public static final Pose2d kLeftClimb = new Pose2d(1.00, 4.65, Rotation2d.fromDegrees(0));
-            // 
+            //
             public static final Pose2d kRightClimb = new Pose2d(1, 2.5, Rotation2d.fromDegrees(180));
         }
 
