@@ -11,7 +11,11 @@
     "RT-",
     ".Strategy"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "LT-Start",
+    "HUB-Start",
+    "RT-Start"
+  ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 270.0,

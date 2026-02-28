@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "New New Path"
+            "pathName": "HUB-DP"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DP-OP"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "HUB-Start",
   "choreoAuto": false
 }
