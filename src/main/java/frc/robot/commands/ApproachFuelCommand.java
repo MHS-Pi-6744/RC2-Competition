@@ -12,7 +12,7 @@ public class ApproachFuelCommand extends Command {
     private final ObjectDetectionSubsystem objectDetection;
 
     private final PIDController yawPid = new PIDController(0.02, 0.0, 0.0);
-    private final PIDController areaPid = new PIDController(0.8, 0.0, 0.0);
+    private final PIDController areaPid = new PIDController(0.15, 0.0, 0.01);
 
     private final double desiredArea = 10.0;  // tune this stuff
     private final double maxForward = 0.6;
@@ -31,26 +31,43 @@ public class ApproachFuelCommand extends Command {
     public void execute() {
 
         if (!objectDetection.hasTarget()) {
-            m_robotDrive.drive(0.0, 0.0, 0.0, false);
-            yawPid.reset();
-            areaPid.reset();
-            return;
-        }
+        m_robotDrive.drive(0.0, 0.0, 0.0, false);
+        yawPid.reset();
+        areaPid.reset();
+        return;
+    }
 
-        double yaw = objectDetection.getTargetYaw();
-        double area = objectDetection.getTargetArea();
+    double yaw = objectDetection.getTargetYaw();
+    double area = objectDetection.getTargetArea();
 
-        double rotCmd = MathUtil.clamp(
-                yawPid.calculate(yaw, 0.0),
-                -maxRotate,
-                maxRotate);
+    // yaw deadband
+    if (Math.abs(yaw) < 1.5) {
+        yaw = 0;
+    }
 
-        double fwdCmd = MathUtil.clamp(
-                areaPid.calculate(area, desiredArea),
-                -maxForward,
-                maxForward);
+    // rotation control
+    double rotCmd = 0.0;
+    if (!yawPid.atSetpoint()) {
+        rotCmd = MathUtil.clamp(
+            yawPid.calculate(yaw, 0.0),
+            -maxRotate,
+            maxRotate
+        );
+    }
 
-        m_robotDrive.drive(fwdCmd, 0.0, rotCmd, false);
+    // Forward control
+    double fwdCmd = 0.0;
+    if (!areaPid.atSetpoint()) {
+        fwdCmd = MathUtil.clamp(
+            areaPid.calculate(area, desiredArea),
+            0.0,           // prevents reverse bounce ?
+            maxForward
+        );
+    }
+
+    m_robotDrive.drive(fwdCmd, 0.0, rotCmd, false);
+
+        
     }
 
     @Override
