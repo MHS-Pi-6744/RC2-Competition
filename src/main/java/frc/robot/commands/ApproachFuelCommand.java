@@ -25,6 +25,7 @@ public class ApproachFuelCommand extends Command {
         addRequirements(m_robotDrive);
 
         yawPid.setTolerance(2.0);
+        areaPid.setTolerance(0.5);
     }
 
     @Override
@@ -46,23 +47,25 @@ public class ApproachFuelCommand extends Command {
     }
 
     // rotation control
-    double rotCmd = 0.0;
-    if (!yawPid.atSetpoint()) {
-        rotCmd = MathUtil.clamp(
-            yawPid.calculate(yaw, 0.0),
-            -maxRotate,
-            maxRotate
-        );
+    double rotCmd = MathUtil.clamp(
+        yawPid.calculate(yaw, 0.0),
+        -maxRotate,
+        maxRotate
+    );
+
+    if (yawPid.atSetpoint()) {
+        rotCmd = 0.0;
     }
 
-    // Forward control
-    double fwdCmd = 0.0;
-    if (!areaPid.atSetpoint()) {
-        fwdCmd = MathUtil.clamp(
-            areaPid.calculate(area, desiredArea),
-            0.0,           // prevents reverse bounce ?
-            maxForward
-        );
+    // forward control
+    double fwdCmd = MathUtil.clamp(
+        areaPid.calculate(area, desiredArea),
+        0.0,
+        maxForward
+    );
+
+    if (areaPid.atSetpoint()) {
+        fwdCmd = 0.0;
     }
 
     m_robotDrive.drive(fwdCmd, 0.0, rotCmd, false);
