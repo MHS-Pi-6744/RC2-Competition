@@ -57,6 +57,15 @@ public final class Constants {
         }
     }
 
+    public static final class ObjectDetectionConstants {
+        public static final double kdesiredArea = 10.0;
+        public static final double kMaxForward = 0.6;
+        public static final double kMaxRotate = 0.6;
+
+        public static final double kYawPidTolerance = 2.0;
+        public static final double kAreaPidTolerance = 0.5;
+    }
+
     public static final class DriveConstants {
         // Driving Parameters - Note that these are not the maximum capable speeds of
         // the robot, rather the allowed maximum speeds

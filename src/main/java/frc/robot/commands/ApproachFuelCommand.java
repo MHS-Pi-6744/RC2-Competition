@@ -6,17 +6,24 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ObjectDetectionSubsystem;
 
+import static frc.robot.Constants.ObjectDetectionConstants.kAreaPidTolerance;
+import static frc.robot.Constants.ObjectDetectionConstants.kYawPidTolerance;
+import static frc.robot.Constants.ObjectDetectionConstants.kMaxForward;
+import static frc.robot.Constants.ObjectDetectionConstants.kMaxRotate;
+import static frc.robot.Constants.ObjectDetectionConstants.kdesiredArea;;
+
 public class ApproachFuelCommand extends Command {
 
     private final DriveSubsystem m_robotDrive;
     private final ObjectDetectionSubsystem objectDetection;
 
+
     private final PIDController yawPid = new PIDController(0.02, 0.0, 0.0);
     private final PIDController areaPid = new PIDController(0.15, 0.0, 0.01);
 
-    private final double desiredArea = 10.0;  // tune this stuff
-    private final double maxForward = 0.6;
-    private final double maxRotate = 0.6;
+    private final double desiredArea = kdesiredArea;  // tune this stuff
+    private final double maxForward = kMaxForward;
+    private final double maxRotate = kMaxRotate;
 
     public ApproachFuelCommand(DriveSubsystem m_robotDrive, ObjectDetectionSubsystem vision) {
         this.m_robotDrive = m_robotDrive;
@@ -24,8 +31,8 @@ public class ApproachFuelCommand extends Command {
 
         addRequirements(m_robotDrive);
 
-        yawPid.setTolerance(2.0);
-        areaPid.setTolerance(0.5);
+        yawPid.setTolerance(kYawPidTolerance);
+        areaPid.setTolerance(kAreaPidTolerance);
     }
 
     @Override
