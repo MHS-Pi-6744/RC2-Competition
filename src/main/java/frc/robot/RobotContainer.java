@@ -44,7 +44,7 @@ public class RobotContainer {
 
     private final SendableChooser<Command> autoChooser;
 
-    private final ObjectDetectionSubsystem objectDetection = new ObjectDetectionSubsystem("photonCameraName");
+    private final ObjectDetectionSubsystem objectDetection = new ObjectDetectionSubsystem("Object_CAM");
 
 
     // The driver's controller
