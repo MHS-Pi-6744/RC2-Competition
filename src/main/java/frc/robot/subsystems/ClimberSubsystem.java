@@ -3,19 +3,23 @@ package frc.robot.subsystems;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+
+import au.grapplerobotics.LaserCan;
+import au.grapplerobotics.ConfigurationFailedException;
+import edu.wpi.first.wpilibj.TimedRobot;
+
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import frc.robot.Configs;
 //import frc.robot.Constants.ClimbSubsystemConstants;
 import frc.robot.Constants.ClimbSubsystemConstants;
-import frc.robot.Configs;
 
 public class ClimberSubsystem extends SubsystemBase {
     // Initialize intake Spark. We will use open loop control for this
@@ -27,6 +31,8 @@ public class ClimberSubsystem extends SubsystemBase {
     private RelativeEncoder re_pivotMotor;
 
     private SparkClosedLoopController p_pivotMotor;
+
+    public static LaserCan lc;
 
     private double m_setpoint;
 
@@ -55,6 +61,8 @@ public class ClimberSubsystem extends SubsystemBase {
         ae_pivotMotor = m_pivotMotor.getAbsoluteEncoder();
 
         re_pivotMotor.setPosition(ae_pivotMotor.getPosition());
+
+        lc = new LaserCan(0);
 
         //re_pivotMotor.setPosition(0);
 
@@ -99,11 +107,16 @@ public class ClimberSubsystem extends SubsystemBase {
       )
       .withName("Setting");
     }
-    public Command runForwardPivot() {
-        return this.run(
-            () -> setTargetPosition(90.0)
-        )
-        .withName("Moving Pivot Forward");
+
+    public Command runForwardClimbCommand() {
+       LaserCan.Measurement measurement = lc.getMeasurement();
+        return measurement != null && measurement.status != LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT
+        ? run(
+            () -> setTargetPosition(90.0))
+        .withName("Moving Climb Up") 
+        : run(
+            () -> m_pivotMotor.set(0))
+        .withName("Stoping Climb");
     }
 
     /**
@@ -111,7 +124,7 @@ public class ClimberSubsystem extends SubsystemBase {
      * 
      * @author Pubert
      */
-    public Command runBackwardPivot() {
+    public Command runBackwardClimbCommand() {
         return this.run(
                 () -> setTargetPosition(0.0)
             )
