@@ -5,6 +5,8 @@
 /src/main/java/frc/robot/subsystems/DriveSubsystem.java @MattheDev53
 /src/main/java/frc/robot/subsystems/MAXSwerveModule.java @MattheDev53
 
+/src/main/java/frc/robot/subsystems/ClimberSubsystem.java @Lupeydev
+
 /src/main/java/frc/robot/subsystems/IntakeSubsystem.java @UnderTheBedStudios
 
 /vendordeps/* @MHS-Pi-6744/senior-developers

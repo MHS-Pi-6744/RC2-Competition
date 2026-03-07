@@ -3,7 +3,9 @@ package frc.robot;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import frc.robot.Constants.ClimbSubsystemConstants;
 
 
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -82,5 +84,38 @@ public final class Configs {
         .openLoopRampRate(0.5)
         .smartCurrentLimit(40);
     }
+    }
+     public static final class ClimberSubsystem {
+        public static final SparkMaxConfig climbConfig = new SparkMaxConfig();
+
+        static { 
+            climbConfig
+                .idleMode(ClimbSubsystemConstants.ClimbSetPoints.kIdleMode)
+                .smartCurrentLimit(ClimbSubsystemConstants.ClimbSetPoints.kCurrentLimit)
+                .inverted(false);
+            climbConfig.absoluteEncoder
+                .inverted(false)
+                .positionConversionFactor(360)
+                .velocityConversionFactor(360)
+                .zeroOffset(ClimbSubsystemConstants.ClimbSetPoints.kZeroOffest)
+                .zeroCentered(false);
+            climbConfig.encoder
+            .positionConversionFactor(ClimbSubsystemConstants.ClimbSetPoints.kPositionConversionFactor)
+            .velocityConversionFactor(ClimbSubsystemConstants.ClimbSetPoints.kVelocityConversionFactor);
+            climbConfig.closedLoop
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                .pid(ClimbSubsystemConstants.ClimbSetPoints.kP, ClimbSubsystemConstants.ClimbSetPoints.kI, ClimbSubsystemConstants.ClimbSetPoints.kD)
+                .outputRange(-1, 1)
+                .maxMotion    
+                .cruiseVelocity(ClimbSubsystemConstants.ClimbSetPoints.kMaxVelocity)
+                .maxAcceleration(ClimbSubsystemConstants.ClimbSetPoints.kMaxAcceleration)
+                .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
+               // .allowedProfileError(PivotSetPoints.kPositionTolerance);
+            // pivotConfig.softLimit
+            //     .forwardSoftLimit(PivotSetPoints.kFwdSoftLimit)
+            //     .reverseSoftLimit(PivotSetPoints.kRevSoftLimit)
+            //     .reverseSoftLimitEnabled(true)
+            //     .forwardSoftLimitEnabled(true);
+        }
   }
 }
