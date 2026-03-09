@@ -24,13 +24,13 @@ import frc.robot.Constants.ClimbSubsystemConstants;
 public class ClimberSubsystem extends SubsystemBase {
     // Initialize intake Spark. We will use open loop control for this
 
-    private SparkMax m_pivotMotor =
+    private SparkMax m_climbMotor =
         new SparkMax(ClimbSubsystemConstants.kClimbMotorCanId, MotorType.kBrushless);
 
-    private SparkAbsoluteEncoder ae_pivotMotor;
-    private RelativeEncoder re_pivotMotor;
+    private SparkAbsoluteEncoder ae_climbMotor;
+    private RelativeEncoder re_climbMotor;
 
-    private SparkClosedLoopController p_pivotMotor;
+    private SparkClosedLoopController p_climbMotor;
 
     public static LaserCan lc;
 
@@ -48,19 +48,19 @@ public class ClimberSubsystem extends SubsystemBase {
         * mid-operation.
         */
 
-        m_pivotMotor.configure(
+        m_climbMotor.configure(
             Configs.ClimberSubsystem.climbConfig,
             ResetMode.kResetSafeParameters,
             PersistMode.kPersistParameters);
 
         m_setpoint = ClimbSubsystemConstants.ClimbSetPoints.kStartPosition;
 
-        p_pivotMotor = m_pivotMotor.getClosedLoopController();
+        p_climbMotor = m_climbMotor.getClosedLoopController();
         
-        re_pivotMotor = m_pivotMotor.getEncoder();
-        ae_pivotMotor = m_pivotMotor.getAbsoluteEncoder();
+        re_climbMotor = m_climbMotor.getEncoder();
+        ae_climbMotor = m_climbMotor.getAbsoluteEncoder();
 
-        re_pivotMotor.setPosition(ae_pivotMotor.getPosition());
+        re_climbMotor.setPosition(ae_climbMotor.getPosition());
 
         lc = new LaserCan(0);
 
@@ -72,7 +72,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public boolean atTargetPoint() {
-        return Math.abs(re_pivotMotor.getPosition() - m_setpoint) < ClimbSubsystemConstants.ClimbSetPoints.kPositionTolerance;
+        return Math.abs(re_climbMotor.getPosition() - m_setpoint) < ClimbSubsystemConstants.ClimbSetPoints.kPositionTolerance;
     }
 
     public void setTargetPosition(double setpos) {
@@ -81,11 +81,11 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void setit() {
-      re_pivotMotor.setPosition(ae_pivotMotor.getPosition());
+      re_climbMotor.setPosition(ae_climbMotor.getPosition());
     }
 
     public void moveToSetPoint() {
-        p_pivotMotor.setSetpoint(m_setpoint, ControlType.kMAXMotionPositionControl);
+        p_climbMotor.setSetpoint(m_setpoint, ControlType.kMAXMotionPositionControl);
     }
 
     /**
@@ -115,7 +115,7 @@ public class ClimberSubsystem extends SubsystemBase {
             () -> setTargetPosition(90.0))
         .withName("Moving Climb Up") 
         : run(
-            () -> m_pivotMotor.set(0))
+            () -> m_climbMotor.set(0))
         .withName("Stoping Climb");
     }
 
@@ -134,8 +134,9 @@ public class ClimberSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         // Display subsystem values
-        SmartDashboard.putNumber("Pivot | Pivot | Applied Output", m_pivotMotor.getAppliedOutput());
-        SmartDashboard.putNumber("Absolute Pos", ae_pivotMotor.getPosition());
-        SmartDashboard.putNumber("Relative Pos", re_pivotMotor.getPosition());
-    }
+        SmartDashboard.putNumber("Pivot | Pivot | Applied Output", m_climbMotor.getAppliedOutput());
+        SmartDashboard.putNumber("Absolute Pos", ae_climbMotor.getPosition());
+        SmartDashboard.putNumber("Relative Pos", re_climbMotor.getPosition());
+        SmartDashboard.putNumber("Velocity", re_climbMotor.getVelocity());
+        }
 }
