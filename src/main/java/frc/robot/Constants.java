@@ -292,7 +292,6 @@ public final class Constants {
   }
 
   public static final class ClimbSubsystemConstants {
-    public static final int kClimbMotorCanId = 20;
 
     public static final class ClimbSetPoints {
       public static final double kStartPosition = 0;

@@ -15,12 +15,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs;
 // import frc.robot.Constants.ClimbSubsystemConstants;
 import frc.robot.Constants.ClimbSubsystemConstants;
+import frc.robot.Constants.canIDs;
 
 public class ClimberSubsystem extends SubsystemBase {
   // Initialize intake Spark. We will use open loop control for this
 
   private SparkMax m_climbMotor =
-      new SparkMax(ClimbSubsystemConstants.kClimbMotorCanId, MotorType.kBrushless);
+      new SparkMax(canIDs.kClimbMotorCanId, MotorType.kBrushless);
 
   private SparkAbsoluteEncoder ae_climbMotor;
   private RelativeEncoder re_climbMotor;
