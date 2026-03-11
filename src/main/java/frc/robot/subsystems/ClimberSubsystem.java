@@ -85,17 +85,7 @@ public class ClimberSubsystem extends SubsystemBase {
     p_climbMotor.setSetpoint(m_setpoint, ControlType.kMAXMotionPositionControl);
   }
 
-  /**
-   * {@link Command} to run the intake motor power {@link Command}. When the {@link Command} is
-   * interrupted, e.g. the button is released, the motors will stop
-   *
-   * @author Pubert
-   */
-  /**
-   * {@link Command} to move the Pivot Motor forward.
-   *
-   * @author Pubert
-   */
+
   public Command setabs() {
     return this.run(() -> setit()).withName("Setting");
   }
@@ -105,13 +95,9 @@ public class ClimberSubsystem extends SubsystemBase {
     return measurement != null && measurement.status != LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT
         ? run(() -> setTargetPosition(90.0)).withName("Moving Climb Up")
         : run(() -> m_climbMotor.set(0)).withName("Stoping Climb");
-  }
+  }    
 
-  /**
-   * {@link Command} to move the Pivot Motor backward.
-   *
-   * @author Pubert
-   */
+
   public Command runBackwardClimbCommand() {
     return this.run(() -> setTargetPosition(0.0)).withName("Moving Pivot Backward");
   }
