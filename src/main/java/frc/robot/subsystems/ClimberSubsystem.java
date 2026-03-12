@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
@@ -20,8 +21,7 @@ import frc.robot.Constants.canIDs;
 public class ClimberSubsystem extends SubsystemBase {
   // Initialize intake Spark. We will use open loop control for this
 
-  private SparkMax m_climbMotor =
-      new SparkMax(canIDs.kClimbMotorCanId, MotorType.kBrushless);
+  private SparkMax m_climbMotor = new SparkMax(canIDs.kClimbMotorCanId, MotorType.kBrushless);
 
   private SparkAbsoluteEncoder ae_climbMotor;
   private RelativeEncoder re_climbMotor;
@@ -59,6 +59,11 @@ public class ClimberSubsystem extends SubsystemBase {
     re_climbMotor.setPosition(ae_climbMotor.getPosition());
 
     lc = new LaserCan(0);
+    try {
+      lc.setRangingMode(LaserCan.RangingMode.SHORT);
+    } catch (ConfigurationFailedException e) {
+      System.out.println("Configuration failed! " + e);
+    }
 
     // re_pivotMotor.setPosition(0);
 
@@ -85,7 +90,6 @@ public class ClimberSubsystem extends SubsystemBase {
     p_climbMotor.setSetpoint(m_setpoint, ControlType.kMAXMotionPositionControl);
   }
 
-
   public Command setabs() {
     return this.run(() -> setit()).withName("Setting");
   }
@@ -95,8 +99,7 @@ public class ClimberSubsystem extends SubsystemBase {
     return measurement != null && measurement.status != LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT
         ? run(() -> setTargetPosition(90.0)).withName("Moving Climb Up")
         : run(() -> m_climbMotor.set(0)).withName("Stoping Climb");
-  }    
-
+  }
 
   public Command runBackwardClimbCommand() {
     return this.run(() -> setTargetPosition(0.0)).withName("Moving Pivot Backward");
