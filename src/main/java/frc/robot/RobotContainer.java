@@ -203,6 +203,10 @@ public class RobotContainer {
         .whileFalse(m_intake.stopMotor());
     m_copilotController.a().onTrue(m_pivot.setTargetPosition(PivotSetPoints.kEndPosition));
     m_copilotController.b().onTrue(m_pivot.setTargetPosition(PivotSetPoints.kStartPosition));
+    m_copilotController.povDown().onTrue(m_climber.switchModeCommand());
+    m_copilotController.povLeft().toggleOnTrue(m_climber.runForwardClimbCommand());
+    m_copilotController.povRight().toggleOnTrue(m_climber.runBackwardClimbCommand());
+    m_copilotController.povUp().toggleOnTrue(m_climber.runForwardSlowClimbCommand());
   }
 
   /**
