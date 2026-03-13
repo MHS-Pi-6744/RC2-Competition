@@ -109,8 +109,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public Command runBackwardClimbCommand() {
     return modeEnabled == true
-    ? run(() -> setTargetPosition(0.0)).withName("Moving Climber Backward")
-    : run(() -> m_climbMotor.set(-0.3)).withName("Moving Climber Backwards Slowly");
+        ? run(() -> setTargetPosition(0.0)).withName("Moving Climber Backward")
+        : run(() -> m_climbMotor.set(-0.3)).withName("Moving Climber Backwards Slowly");
   }
 
   public Command runForwardSlowClimbCommand() {
