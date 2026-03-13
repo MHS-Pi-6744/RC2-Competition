@@ -8,8 +8,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.List;
@@ -37,9 +35,6 @@ public class Vision extends SubsystemBase {
    */
   PhotonTrackedTarget[] targets;
 
-  Sendable s_tag25 = aprilTagSendable(25);
-  Sendable s_tag26 = aprilTagSendable(26);
-
   Pose3d p_estimated;
 
   private Matrix<N3, N1> curStdDevs;
@@ -60,11 +55,7 @@ public class Vision extends SubsystemBase {
   @Override
   public void periodic() {
     refreshTags();
-    SmartDashboard.putData("Tag #25", s_tag25);
-    SmartDashboard.putData("Tag #26", s_tag26);
-    SmartDashboard.putNumber("Closest Test", getClosestTag(new int[] {25, 26}).getYaw());
-    SmartDashboard.putNumber("Average of Tags", getAverageTagsYaw(new int[] {25, 26}));
-    SmartDashboard.putNumber("Priority: 25, 26", getTagsWithPriority(new int[] {25, 26}).getYaw());
+    putAprilTag(10);
   }
 
   public Pose2d getPose2d() {
@@ -77,26 +68,17 @@ public class Vision extends SubsystemBase {
    * @param ID The Tag to create the Sendable for
    * @author MattheDev53
    */
-  private final Sendable aprilTagSendable(int ID) {
-    return new Sendable() {
-      @Override
-      public void initSendable(SendableBuilder builder) {
-        String tagPrefix = "Tag #" + ID + " ";
-        builder.addBooleanProperty(tagPrefix + "Visible", () -> getTagVisible(ID), null);
+  private final void putAprilTag(int ID) {
+    String tagPrefix = "Tag #" + ID + "/";
+    SmartDashboard.putBoolean(tagPrefix + "Visible", getTagVisible(ID));
 
-        builder.addDoubleProperty(tagPrefix + "Yaw", () -> getTag(ID).getYaw(), null);
-        builder.addDoubleProperty(tagPrefix + "Area", () -> getTag(ID).getArea(), null);
-        builder.addDoubleProperty(tagPrefix + "Pitch", () -> getTag(ID).getPitch(), null);
-        builder.addDoubleProperty(
-            tagPrefix + "Ambiguity", () -> getTag(ID).getPoseAmbiguity(), null);
-        builder.addDoubleProperty(
-            tagPrefix + "X", () -> getTag(ID).getBestCameraToTarget().getX(), null);
-        builder.addDoubleProperty(
-            tagPrefix + "Y", () -> getTag(ID).getBestCameraToTarget().getY(), null);
-        builder.addDoubleProperty(
-            tagPrefix + "Z", () -> getTag(ID).getBestCameraToTarget().getZ(), null);
-      }
-    };
+    SmartDashboard.putNumber(tagPrefix + "Yaw", getTag(ID).getYaw());
+    SmartDashboard.putNumber(tagPrefix + "Area", getTag(ID).getArea());
+    SmartDashboard.putNumber(tagPrefix + "Pitch", getTag(ID).getPitch());
+    SmartDashboard.putNumber(tagPrefix + "Ambiguity", getTag(ID).getPoseAmbiguity());
+    SmartDashboard.putNumber(tagPrefix + "X", getTag(ID).getBestCameraToTarget().getX());
+    SmartDashboard.putNumber(tagPrefix + "Y", getTag(ID).getBestCameraToTarget().getY());
+    SmartDashboard.putNumber(tagPrefix + "Z", getTag(ID).getBestCameraToTarget().getZ());
   }
 
   /**
@@ -312,7 +294,8 @@ public class Vision extends SubsystemBase {
       int numTags = 0;
       double avgDist = 0;
 
-      // Precalculation - see how many tags we found, and calculate an average-distance metric
+      // Precalculation - see how many tags we found, and calculate an
+      // average-distance metric
       for (var tgt : targets) {
         var tagPose = photonEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
         if (tagPose.isEmpty()) continue;

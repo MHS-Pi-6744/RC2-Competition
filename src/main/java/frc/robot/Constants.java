@@ -96,7 +96,7 @@ public final class Constants {
       public static final double kMaxAcceleration = 3600; // Units deg/min/sec
       public static final double kPositionTolerance = 90; // Units deg
 
-      // PID gains    ======== Will need to be tuned when operating on the climber     -Sr
+      // PID gains ======== Will need to be tuned when operating on the climber -Sr
       public static final double kP = 0.10000000;
       public static final double kI = 0.00000000;
       public static final double kD = 0.00000000;
@@ -110,7 +110,8 @@ public final class Constants {
 
   public static final class ShooterSubsystemConstants {
     // SPARKmax CAN ID (Right)
-    // public static final int kFlywheelFollowerMotorCanId = 16;  // SPARKmax CAN ID (Left)
+    // public static final int kFlywheelFollowerMotorCanId = 16; // SPARKmax CAN ID
+    // (Left)
 
     public static final int kCenterCanId = 18;
     public static final int kRightCanId = 19;
@@ -118,7 +119,8 @@ public final class Constants {
 
     public static final int kSuckerCanId = 16;
 
-    // Check these units - it looks to me like ShooterSubsystem is controlling in RPM???  Sr
+    // Check these units - it looks to me like ShooterSubsystem is controlling in
+    // RPM??? Sr
     public static final class FlywheelSetpoints {
 
       /**
@@ -230,14 +232,16 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    public static final String kCameraName = "Cam2";
+    public static final String kCameraName = "Cam1";
 
     /** Where is the camera mounted relative to robot center? */
     public static final Transform3d kRobotToCam =
         new Transform3d(
             new Translation3d(
-                Units.inchesToMeters(6), Units.inchesToMeters(5.5), Units.inchesToMeters(4.75)),
-            new Rotation3d(0, 0, 0));
+                -Units.inchesToMeters(1.3714),
+                Units.inchesToMeters(0),
+                Units.inchesToMeters(20.7281)),
+            new Rotation3d(0, -(Math.PI / 6), 0));
 
     // The layout of the AprilTags on the field
     public static final AprilTagFieldLayout kTagLayout =

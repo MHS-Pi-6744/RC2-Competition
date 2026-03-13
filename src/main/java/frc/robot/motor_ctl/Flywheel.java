@@ -24,8 +24,8 @@ public class Flywheel extends SubsystemBase {
 
   // DriveSubsystem constructor - creates & initializes DriveSubsystem object
   public Flywheel(int canID, SparkBaseConfig config) {
-    rpmSet = 0;
-    s_motorName = "Flywheel #" + canID + " ";
+    rpmSet = 2500;
+    s_motorName = "Flywheel #" + canID + "/";
     m_otor = new SparkFlex(canID, MotorType.kBrushless);
     m_pidController = m_otor.getClosedLoopController();
     e_ncoder = m_otor.getEncoder();
@@ -89,9 +89,13 @@ public class Flywheel extends SubsystemBase {
     SmartDashboard.putNumber(s_motorName + "Position", e_ncoder.getPosition());
     SmartDashboard.putNumber(s_motorName + "Velocity", e_ncoder.getVelocity());
 
-    SmartDashboard.putBoolean(s_motorName + "At Setpoint", m_pidController.isAtSetpoint());
+    SmartDashboard.putBoolean(
+        s_motorName + "At Setpoint?",
+        m_pidController.getSetpoint() == 0
+            ? true
+            : (e_ncoder.getVelocity() / m_pidController.getSetpoint()) > 0.95);
     SmartDashboard.putNumber(s_motorName + "Setpoint", m_pidController.getSetpoint());
 
-    SmartDashboard.putNumber(s_motorName + "Internal Perc Setpoint", rpmSet);
+    SmartDashboard.putNumber(s_motorName + "Internal Setpoint", rpmSet);
   }
 }

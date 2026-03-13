@@ -290,38 +290,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearRight.setDesiredState(swerveModuleStates[3]);
   }
 
-  /**
-   * Method to drive the robot using joystick info.
-   *
-   * @param xSpeed Speed of the robot in the x direction (forward).
-   * @param ySpeed Speed of the robot in the y direction (sideways).
-   * @param rot Angular rate of the robot.
-   * @param fieldRelative Whether the provided x and y speeds are relative to the field.
-   * @param damp Whether to damp the inputs
-   */
-  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean damp) {
-    // Convert the commanded speeds into the correct units for the drivetrain
-    double xSpeedDelivered = xSpeed;
-    double ySpeedDelivered = ySpeed;
-    double rotDelivered = rot;
-
-    xSpeedDelivered *= damp ? 1 : kMaxSpeedMetersPerSecond;
-    ySpeedDelivered *= damp ? 1 : kMaxSpeedMetersPerSecond;
-    rotDelivered *= damp ? 1 : kMaxAngularSpeed;
-
-    var swerveModuleStates =
-        kDriveKinematics.toSwerveModuleStates(
-            fieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(
-                    xSpeedDelivered, ySpeedDelivered, rotDelivered, m_gyro.getRotation2d())
-                : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
-    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(swerveModuleStates[0]);
-    m_frontRight.setDesiredState(swerveModuleStates[1]);
-    m_rearLeft.setDesiredState(swerveModuleStates[2]);
-    m_rearRight.setDesiredState(swerveModuleStates[3]);
-  }
-
   private void driveRobotRelative(ChassisSpeeds speeds) {
     var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeedMetersPerSecond);
@@ -386,6 +354,10 @@ public class DriveSubsystem extends SubsystemBase {
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
     m_gyro.reset();
+  }
+
+  public Command resetGyro() {
+    return run(() -> zeroHeading());
   }
 
   /**

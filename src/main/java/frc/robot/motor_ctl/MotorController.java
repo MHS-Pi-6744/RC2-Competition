@@ -19,7 +19,7 @@ public class MotorController extends SubsystemBase {
 
   // DriveSubsystem constructor - creates & initializes DriveSubsystem object
   public MotorController(int canID, SparkBaseConfig config) {
-    s_motorName = "Motor #" + canID;
+    s_motorName = "Motor #" + canID + "/";
     m_otor = new SparkMax(canID, MotorType.kBrushless);
     e_ncoder = m_otor.getEncoder();
 
@@ -83,10 +83,10 @@ public class MotorController extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     // m_shooterMotor.getOutputCurrent();
-    SmartDashboard.putNumber(s_motorName + " Output", m_otor.getAppliedOutput());
-    SmartDashboard.putNumber(s_motorName + " Current", m_otor.getOutputCurrent());
+    SmartDashboard.putNumber(s_motorName + "Output", m_otor.getAppliedOutput());
+    SmartDashboard.putNumber(s_motorName + "Current", m_otor.getOutputCurrent());
 
-    SmartDashboard.putNumber(s_motorName + " Position", e_ncoder.getPosition());
-    SmartDashboard.putNumber(s_motorName + " Velocity", e_ncoder.getVelocity());
+    SmartDashboard.putNumber(s_motorName + "Position", e_ncoder.getPosition());
+    SmartDashboard.putNumber(s_motorName + "Velocity", e_ncoder.getVelocity());
   }
 }

@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -17,11 +18,12 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Configs.Default;
+import frc.robot.Configs.IntakeConfigs;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.AutoConstants.BlueAlliance;
 import frc.robot.Constants.AutoConstants.RedAlliance;
+import frc.robot.Constants.IntakeSubsystemConstants.PivotSetPoints;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterSubsystemConstants;
 import frc.robot.Constants.canIDs;
@@ -30,7 +32,7 @@ import frc.robot.motor_ctl.MotorController;
 // Constants
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.PivotSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 // import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Vision;
@@ -46,8 +48,10 @@ public class RobotContainer {
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   // private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final Vision vision = new Vision(m_robotDrive::addVisionMeasurement);
-  private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ClimberSubsystem m_climber = new ClimberSubsystem();
+  private final PivotSubsystem m_pivot = new PivotSubsystem();
+  private final MotorController m_intake =
+      new MotorController(canIDs.kIntakeMotorCanId, IntakeConfigs.intakeConfig);
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final MotorController m_feeder =
       new MotorController(canIDs.kFeederMotorCanId, Default.Config.inverted(false));
@@ -90,8 +94,27 @@ public class RobotContainer {
 
   private DrivingMode drivingMode;
 
+  private Command m_feeder_run =
+      new ParallelCommandGroup(m_sucker.setSpeed(0.5), m_feeder.setSpeed(0.5));
+  private Command m_feeder_stop =
+      new ParallelCommandGroup(m_sucker.stopMotor(), m_feeder.stopMotor());
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
+    NamedCommands.registerCommand("Flywheel Go", m_shooter.runRPM(2750));
+    NamedCommands.registerCommand("Flywheel Stop", m_shooter.stopFlywheel());
+    NamedCommands.registerCommand("Feeder Go", m_feeder_run);
+    NamedCommands.registerCommand("Feeder Stop", m_feeder_stop);
+    NamedCommands.registerCommand(
+        "Pivot Down", m_pivot.setTargetPosition(PivotSetPoints.kEndPosition));
+    NamedCommands.registerCommand(
+        "Pivot Up", m_pivot.setTargetPosition(PivotSetPoints.kStartPosition));
+    // NamedCommands.registerCommand("Pivot Dump", m_feeder_stop);
+    NamedCommands.registerCommand("Intake Forwards", m_intake.runMotor(1));
+    NamedCommands.registerCommand("Intake Backwards", m_intake.runMotor(-1));
+    NamedCommands.registerCommand("Intake Stop", m_intake.stopMotor());
+
     // Configure the button bindings
     configureButtonBindings();
 
@@ -99,10 +122,7 @@ public class RobotContainer {
 
     // Build an auto chooser. This will use Commands.none() as the default option.
     autoChooser = AutoBuilder.buildAutoChooser();
-    autoChooser.addOption("DynFwd", m_robotDrive.SysIDDynamic(Direction.kForward));
-    autoChooser.addOption("DynRev", m_robotDrive.SysIDDynamic(Direction.kReverse));
-    autoChooser.addOption("QasFwd", m_robotDrive.SysIDQuasistatic(Direction.kForward));
-    autoChooser.addOption("QasRev", m_robotDrive.SysIDQuasistatic(Direction.kReverse));
+    autoChooser.addOption("Pathfind Left Climb Red", pathfindLeftClimbRed);
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -155,30 +175,34 @@ public class RobotContainer {
 
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {
-    // m_driverController.rightBumper().whileTrue(new InstantCommand(() -> m_robotDrive.setX()));
+    // m_driverController.rightBumper().whileTrue(new InstantCommand(() ->
+    // m_robotDrive.setX()));
     // m_driverController.rightTrigger().whileTrue(m_intake.runIntakeCommand());
     // m_driverController.leftTrigger().whileTrue(m_intake.runExtakeCommand());
     // m_driverController.start()
-    // .onTrue(new InstantCommand(() -> m_robotDrive.resetPose(vision.getPose2d())));
+    // .onTrue(new InstantCommand(() ->
+    // m_robotDrive.resetPose(vision.getPose2d())));
     m_driverController
         .a()
         .onTrue(new InstantCommand(() -> driveTagAssisted()))
         .onFalse(new InstantCommand(() -> driveNormal()));
     m_driverController.povUp().onTrue(m_shooter.incrementSetpoint(250));
     m_driverController.povDown().onTrue(m_shooter.incrementSetpoint(-250));
+    m_driverController.povRight().onTrue(m_shooter.incrementSetpoint(10));
+    m_driverController.povLeft().onTrue(m_shooter.incrementSetpoint(-10));
     m_driverController.rightBumper().onTrue(m_shooter.runAtSet()).onFalse(m_shooter.stopFlywheel());
-    m_driverController
-        .x()
-        .onTrue(new ParallelCommandGroup(m_sucker.setSpeed(0.5), m_feeder.setSpeed(0.5)))
-        .onFalse(new ParallelCommandGroup(m_sucker.stopMotor(), m_feeder.stopMotor()));
-    m_copilotController.povDown().onTrue(m_climber.switchModeCommand());
-    m_copilotController.povLeft().toggleOnTrue(m_climber.runForwardClimbCommand());
-    m_copilotController.povRight().toggleOnTrue(m_climber.runBackwardClimbCommand());
-    m_copilotController.povUp().toggleOnTrue(m_climber.runForwardSlowClimbCommand());
-    m_copilotController.rightBumper().whileTrue(m_intake.runIntakeCommand());
-    m_copilotController.leftBumper().whileTrue(m_intake.runExtakeCommand());
-    m_copilotController.a().onTrue(m_intake.runForwardPivot());
-    m_copilotController.b().onTrue(m_intake.runBackwardPivot());
+    m_driverController.x().onTrue(m_feeder_run).onFalse(m_feeder_stop);
+    m_driverController.start().onTrue(m_robotDrive.resetGyro());
+    m_copilotController
+        .rightBumper()
+        .whileTrue(m_intake.runMotor(1))
+        .whileFalse(m_intake.stopMotor());
+    m_copilotController
+        .leftBumper()
+        .whileTrue(m_intake.runMotor(-1))
+        .whileFalse(m_intake.stopMotor());
+    m_copilotController.a().onTrue(m_pivot.setTargetPosition(PivotSetPoints.kEndPosition));
+    m_copilotController.b().onTrue(m_pivot.setTargetPosition(PivotSetPoints.kStartPosition));
   }
 
   /**

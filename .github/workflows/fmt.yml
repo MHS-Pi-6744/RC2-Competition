@@ -43,6 +43,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
 
+      - name: Set Perms
+        run: chmod u+x ./gradlew
+
       # Runs our formatter for easier code review
       - name: Run spotlessApply
         run: ./gradlew spotlessApply
