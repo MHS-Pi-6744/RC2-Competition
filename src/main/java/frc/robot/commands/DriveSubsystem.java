@@ -5,7 +5,4 @@
 
 package frc.robot.commands;
 
-
-class DriveSubsystem {
-
-}
+class DriveSubsystem {}

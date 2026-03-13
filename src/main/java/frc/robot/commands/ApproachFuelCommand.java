@@ -1,48 +1,47 @@
 package frc.robot.commands;
 
+import static frc.robot.Constants.ObjectDetectionConstants.kAreaPidTolerance;
+import static frc.robot.Constants.ObjectDetectionConstants.kMaxForward;
+import static frc.robot.Constants.ObjectDetectionConstants.kMaxRotate;
+import static frc.robot.Constants.ObjectDetectionConstants.kYawPidTolerance;
+import static frc.robot.Constants.ObjectDetectionConstants.kdesiredArea;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ObjectDetectionSubsystem;
 
-import static frc.robot.Constants.ObjectDetectionConstants.kAreaPidTolerance;
-import static frc.robot.Constants.ObjectDetectionConstants.kYawPidTolerance;
-import static frc.robot.Constants.ObjectDetectionConstants.kMaxForward;
-import static frc.robot.Constants.ObjectDetectionConstants.kMaxRotate;
-import static frc.robot.Constants.ObjectDetectionConstants.kdesiredArea;;
-
 public class ApproachFuelCommand extends Command {
 
-    private final DriveSubsystem m_robotDrive;
-    private final ObjectDetectionSubsystem objectDetection;
+  private final DriveSubsystem m_robotDrive;
+  private final ObjectDetectionSubsystem objectDetection;
 
+  private final PIDController yawPid = new PIDController(0.02, 0.0, 0.0);
+  private final PIDController areaPid = new PIDController(0.15, 0.0, 0.01);
 
-    private final PIDController yawPid = new PIDController(0.02, 0.0, 0.0);
-    private final PIDController areaPid = new PIDController(0.15, 0.0, 0.01);
+  private final double desiredArea = kdesiredArea; // tune this stuff
+  private final double maxForward = kMaxForward;
+  private final double maxRotate = kMaxRotate;
 
-    private final double desiredArea = kdesiredArea;  // tune this stuff
-    private final double maxForward = kMaxForward;
-    private final double maxRotate = kMaxRotate;
+  public ApproachFuelCommand(DriveSubsystem m_robotDrive, ObjectDetectionSubsystem vision) {
+    this.m_robotDrive = m_robotDrive;
+    this.objectDetection = vision;
 
-    public ApproachFuelCommand(DriveSubsystem m_robotDrive, ObjectDetectionSubsystem vision) {
-        this.m_robotDrive = m_robotDrive;
-        this.objectDetection = vision;
+    addRequirements(m_robotDrive);
 
-        addRequirements(m_robotDrive);
+    yawPid.setTolerance(kYawPidTolerance);
+    areaPid.setTolerance(kAreaPidTolerance);
+  }
 
-        yawPid.setTolerance(kYawPidTolerance);
-        areaPid.setTolerance(kAreaPidTolerance);
-    }
+  @Override
+  public void execute() {
 
-    @Override
-    public void execute() {
-
-        if (!objectDetection.hasTarget()) {
-        m_robotDrive.drive(0.0, 0.0, 0.0, false);
-        yawPid.reset();
-        areaPid.reset();
-        return;
+    if (!objectDetection.hasTarget()) {
+      m_robotDrive.drive(0.0, 0.0, 0.0, false);
+      yawPid.reset();
+      areaPid.reset();
+      return;
     }
 
     double yaw = objectDetection.getTargetYaw();
@@ -50,43 +49,33 @@ public class ApproachFuelCommand extends Command {
 
     // yaw deadband
     if (Math.abs(yaw) < 1.5) {
-        yaw = 0;
+      yaw = 0;
     }
 
     // rotation control
-    double rotCmd = MathUtil.clamp(
-        yawPid.calculate(yaw, 0.0),
-        -maxRotate,
-        maxRotate
-    );
+    double rotCmd = MathUtil.clamp(yawPid.calculate(yaw, 0.0), -maxRotate, maxRotate);
 
     if (yawPid.atSetpoint()) {
-        rotCmd = 0.0;
+      rotCmd = 0.0;
     }
 
     // forward control
-    double fwdCmd = MathUtil.clamp(
-        areaPid.calculate(area, desiredArea),
-        0.0,
-        maxForward
-    );
+    double fwdCmd = MathUtil.clamp(areaPid.calculate(area, desiredArea), 0.0, maxForward);
 
     if (areaPid.atSetpoint()) {
-        fwdCmd = 0.0;
+      fwdCmd = 0.0;
     }
 
     m_robotDrive.drive(fwdCmd, 0.0, rotCmd, false);
+  }
 
-        
-    }
+  @Override
+  public void end(boolean interrupted) {
+    m_robotDrive.drive(0.0, 0.0, 0.0, false);
+  }
 
-    @Override
-    public void end(boolean interrupted) {
-        m_robotDrive.drive(0.0, 0.0, 0.0, false);
-    }
-
-    @Override
-    public boolean isFinished() {
-        return false; // when button held
-    }
+  @Override
+  public boolean isFinished() {
+    return false; // when button held
+  }
 }
