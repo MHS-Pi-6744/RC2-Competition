@@ -118,8 +118,6 @@ public final class Constants {
 
     public static final int kSuckerCanId = 16;
 
-
-
     // Check these units - it looks to me like ShooterSubsystem is controlling in RPM???  Sr
     public static final class FlywheelSetpoints {
 

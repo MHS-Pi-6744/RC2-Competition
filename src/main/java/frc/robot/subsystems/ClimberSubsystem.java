@@ -32,6 +32,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
   private double m_setpoint;
 
+  private String s_motorName;
+
   public ClimberSubsystem() {
     /*
      * Apply the appropriate configurations to the SPARKs.
@@ -43,6 +45,8 @@ public class ClimberSubsystem extends SubsystemBase {
      * the SPARK loses power. This is useful for power cycles that may occur
      * mid-operation.
      */
+
+    s_motorName = "Flywheel #" + canIDs.kClimbMotorCanId + " ";
 
     m_climbMotor.configure(
         Configs.ClimberSubsystem.climbConfig,
@@ -65,7 +69,7 @@ public class ClimberSubsystem extends SubsystemBase {
       System.out.println("Configuration failed! " + e);
     }
 
-    // re_pivotMotor.setPosition(0);
+    // re_climbMotor.setPosition(0);
 
     setit();
 
@@ -108,9 +112,11 @@ public class ClimberSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // Display subsystem values
-    SmartDashboard.putNumber("Pivot | Pivot | Applied Output", m_climbMotor.getAppliedOutput());
-    SmartDashboard.putNumber("Absolute Pos", ae_climbMotor.getPosition());
-    SmartDashboard.putNumber("Relative Pos", re_climbMotor.getPosition());
-    SmartDashboard.putNumber("Velocity", re_climbMotor.getVelocity());
+    SmartDashboard.putNumber(s_motorName + "Applied Output", m_climbMotor.getAppliedOutput());
+    SmartDashboard.putNumber(s_motorName + "Absolute Pos", ae_climbMotor.getPosition());
+    SmartDashboard.putNumber(s_motorName + "Relative Pos", re_climbMotor.getPosition());
+    SmartDashboard.putNumber(s_motorName + "Velocity", re_climbMotor.getVelocity());
+
+    SmartDashboard.putBoolean(s_motorName + "At Setpoint", atTargetPoint());
   }
 }

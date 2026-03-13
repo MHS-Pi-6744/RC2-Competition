@@ -4,7 +4,6 @@ import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants.ClimbSubsystemConstants;
 import frc.robot.Constants.IntakeSubsystemConstants.PivotSetPoints;
@@ -108,7 +107,6 @@ public final class Configs {
           .allowedProfileError(PivotSetPoints.kPositionTolerance);
     }
   }
-
 
   public static final class ClimberSubsystem {
     public static final SparkMaxConfig climbConfig = new SparkMaxConfig();
