@@ -28,6 +28,7 @@ import frc.robot.Constants.canIDs;
 // Subsystems
 import frc.robot.motor_ctl.MotorController;
 // Constants
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -46,6 +47,7 @@ public class RobotContainer {
   // private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final Vision vision = new Vision(m_robotDrive::addVisionMeasurement);
   private final IntakeSubsystem m_intake = new IntakeSubsystem();
+  private final ClimberSubsystem m_climber = new ClimberSubsystem();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final MotorController m_feeder =
       new MotorController(canIDs.kFeederMotorCanId, Default.Config.inverted(false));
@@ -169,6 +171,10 @@ public class RobotContainer {
         .x()
         .onTrue(new ParallelCommandGroup(m_sucker.setSpeed(0.5), m_feeder.setSpeed(0.5)))
         .onFalse(new ParallelCommandGroup(m_sucker.stopMotor(), m_feeder.stopMotor()));
+    m_copilotController.povDown().onTrue(m_climber.switchModeCommand());
+    m_copilotController.povLeft().toggleOnTrue(m_climber.runForwardClimbCommand());
+    m_copilotController.povRight().toggleOnTrue(m_climber.runBackwardClimbCommand());
+    m_copilotController.povUp().toggleOnTrue(m_climber.runForwardSlowClimbCommand());
     m_copilotController.rightBumper().whileTrue(m_intake.runIntakeCommand());
     m_copilotController.leftBumper().whileTrue(m_intake.runExtakeCommand());
     m_copilotController.a().onTrue(m_intake.runForwardPivot());

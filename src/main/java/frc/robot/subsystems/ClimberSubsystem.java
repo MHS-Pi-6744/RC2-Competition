@@ -34,6 +34,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
   private String s_motorName;
 
+  public Boolean modeEnabled;
+
   public ClimberSubsystem() {
     /*
      * Apply the appropriate configurations to the SPARKs.
@@ -106,7 +108,25 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public Command runBackwardClimbCommand() {
-    return this.run(() -> setTargetPosition(0.0)).withName("Moving Pivot Backward");
+    return modeEnabled == true
+    ? run(() -> setTargetPosition(0.0)).withName("Moving Climber Backward")
+    : run(() -> m_climbMotor.set(-0.3)).withName("Moving Climber Backwards Slowly");
+  }
+
+  public Command runForwardSlowClimbCommand() {
+    return this.run(() -> m_climbMotor.set(0.3));
+  }
+
+  public void switchMode() {
+    if (modeEnabled) {
+      modeEnabled = false;
+    } else {
+      modeEnabled = true;
+    }
+  }
+
+  public Command switchModeCommand() {
+    return this.run(() -> switchMode());
   }
 
   @Override
