@@ -1,11 +1,9 @@
+
 package frc.robot.subsystems;
 
-import au.grapplerobotics.ConfigurationFailedException;
-import au.grapplerobotics.LaserCan;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -14,27 +12,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs;
-// import frc.robot.Constants.ClimbSubsystemConstants;
-import frc.robot.Constants.ClimbSubsystemConstants;
+import frc.robot.Constants.IntakeSubsystemConstants.PivotSetPoints;
 import frc.robot.Constants.canIDs;
 
 public class ClimberSubsystem extends SubsystemBase {
-  // Initialize intake Spark. We will use open loop control for this
 
-  private SparkMax m_climbMotor = new SparkMax(canIDs.kClimbMotorCanId, MotorType.kBrushless);
+  private SparkMax m_climb = new SparkMax(canIDs.kPivotMotorCanId, MotorType.kBrushless);
 
-  private SparkAbsoluteEncoder ae_climbMotor;
-  private RelativeEncoder re_climbMotor;
+  private RelativeEncoder re_climb;
 
-  private SparkClosedLoopController p_climbMotor;
-
-  public static LaserCan lc;
-
-  private double m_setpoint;
-
-  private String s_motorName;
-
-  public Boolean modeEnabled;
+  private SparkClosedLoopController p_climb;
 
   public ClimberSubsystem() {
     /*
@@ -47,96 +34,46 @@ public class ClimberSubsystem extends SubsystemBase {
      * the SPARK loses power. This is useful for power cycles that may occur
      * mid-operation.
      */
-
-    s_motorName = "Flywheel #" + canIDs.kClimbMotorCanId + " ";
-
-    m_climbMotor.configure(
-        Configs.ClimberSubsystem.climbConfig,
+    m_climb.configure(
+        Configs.ClimberConfigs.climbConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
 
-    m_setpoint = ClimbSubsystemConstants.ClimbSetPoints.kStartPosition;
+    p_climb = m_climb.getClosedLoopController();
 
-    p_climbMotor = m_climbMotor.getClosedLoopController();
+    re_climb = m_climb.getEncoder();
 
-    re_climbMotor = m_climbMotor.getEncoder();
-    ae_climbMotor = m_climbMotor.getAbsoluteEncoder();
-
-    re_climbMotor.setPosition(ae_climbMotor.getPosition());
-
-    lc = new LaserCan(0);
-    try {
-      lc.setRangingMode(LaserCan.RangingMode.SHORT);
-    } catch (ConfigurationFailedException e) {
-      System.out.println("Configuration failed! " + e);
-    }
-
-    // re_climbMotor.setPosition(0);
-
-    setit();
-
-    System.out.println("---> IntakeSubsystem initialized");
+    setTargetPosition(
+        PivotSetPoints.kStartPosition); // set target position to start position and go there
   }
 
-  public boolean atTargetPoint() {
-    return Math.abs(re_climbMotor.getPosition() - m_setpoint)
-        < ClimbSubsystemConstants.ClimbSetPoints.kPositionTolerance;
+  public Command setTargetPosition(double setpos) {
+    return run(
+        () ->
+            p_climb.setSetpoint(
+                setpos, ControlType.kMAXMotionPositionControl) // USING PID POSITION CONTROL
+        );
   }
 
-  public void setTargetPosition(double setpos) {
-    m_setpoint = setpos;
-    moveToSetPoint();
+  public Command runMotor(double speed) {
+    return run(
+      () -> m_climb.set(speed)
+    );
   }
 
-  public void setit() {
-    re_climbMotor.setPosition(ae_climbMotor.getPosition());
-  }
-
-  public void moveToSetPoint() {
-    p_climbMotor.setSetpoint(m_setpoint, ControlType.kMAXMotionPositionControl);
-  }
-
-  public Command setabs() {
-    return this.run(() -> setit()).withName("Setting");
-  }
-
-  public Command runForwardClimbCommand() {
-    LaserCan.Measurement measurement = lc.getMeasurement();
-    return measurement != null && measurement.status != LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT
-        ? run(() -> setTargetPosition(90.0)).withName("Moving Climb Up")
-        : run(() -> m_climbMotor.set(0)).withName("Stoping Climb");
-  }
-
-  public Command runBackwardClimbCommand() {
-    return modeEnabled == true
-        ? run(() -> setTargetPosition(0.0)).withName("Moving Climber Backward")
-        : run(() -> m_climbMotor.set(-0.3)).withName("Moving Climber Backwards Slowly");
-  }
-
-  public Command runForwardSlowClimbCommand() {
-    return this.run(() -> m_climbMotor.set(0.3));
-  }
-
-  public void switchMode() {
-    if (modeEnabled) {
-      modeEnabled = false;
-    } else {
-      modeEnabled = true;
-    }
-  }
-
-  public Command switchModeCommand() {
-    return this.run(() -> switchMode());
+  public Command stopMotor() {
+    return runMotor(0);
   }
 
   @Override
   public void periodic() {
-    // Display subsystem values
-    SmartDashboard.putNumber(s_motorName + "Applied Output", m_climbMotor.getAppliedOutput());
-    SmartDashboard.putNumber(s_motorName + "Absolute Pos", ae_climbMotor.getPosition());
-    SmartDashboard.putNumber(s_motorName + "Relative Pos", re_climbMotor.getPosition());
-    SmartDashboard.putNumber(s_motorName + "Velocity", re_climbMotor.getVelocity());
-
-    SmartDashboard.putBoolean(s_motorName + "At Setpoint", atTargetPoint());
+    SmartDashboard.putNumber("Climb/" + "Output", m_climb.getAppliedOutput());
+    SmartDashboard.putNumber("Climb/" + "Current", m_climb.getOutputCurrent());
+    SmartDashboard.putNumber("Climb/" + "Relative/" + "Position", re_climb.getPosition());
+    // SmartDashboard.putNumber("Pivot/"+"Absolute/"+"Position", );
+    SmartDashboard.putNumber("Climb/" + "Relative/" + "Velocity", re_climb.getVelocity());
+    // SmartDashboard.putNumber("Pivot/"+"Absolute/"+"Velocity", );
   }
 }
+
+
