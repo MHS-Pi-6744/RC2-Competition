@@ -17,9 +17,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Flywheel Go"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "N - H"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Feeder Go"
           }
         }
       ]

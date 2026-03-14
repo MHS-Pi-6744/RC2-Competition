@@ -101,15 +101,13 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-
+  
     NamedCommands.registerCommand("Flywheel Go", m_shooter.runRPM(2750));
     NamedCommands.registerCommand("Flywheel Stop", m_shooter.stopFlywheel());
     NamedCommands.registerCommand("Feeder Go", m_feeder_run);
     NamedCommands.registerCommand("Feeder Stop", m_feeder_stop);
-    NamedCommands.registerCommand(
-        "Pivot Down", m_pivot.setTargetPosition(PivotSetPoints.kEndPosition));
-    NamedCommands.registerCommand(
-        "Pivot Up", m_pivot.setTargetPosition(PivotSetPoints.kStartPosition));
+    NamedCommands.registerCommand("Pivot Down", m_pivot.setTargetPosition(PivotSetPoints.kEndPosition));
+    NamedCommands.registerCommand("Pivot Up", m_pivot.setTargetPosition(PivotSetPoints.kStartPosition));
     // NamedCommands.registerCommand("Pivot Dump", m_feeder_stop);
     NamedCommands.registerCommand("Intake Forwards", m_intake.runMotor(1));
     NamedCommands.registerCommand("Intake Backwards", m_intake.runMotor(-1));
