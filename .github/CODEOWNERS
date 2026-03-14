@@ -7,7 +7,7 @@
 
 /src/main/java/frc/robot/subsystems/ClimberSubsystem.java @Lupeydev
 /src/main/java/frc/robot/motor_ctl/MotorController.java @MattheDev53
-/src/main/java/frc/robot/motor_ctl/Flywheel.java @MattheDev53
+/src/main/java/frc/robot/motor_ctl/Flywheel.java @MattheDev53 @Lupeydev
 
 /src/main/java/frc/robot/subsystems/IntakeSubsystem.java @UnderTheBedStudios
 /src/main/java/frc/robot/subsystems/ShooterSubsystem.java @Lupeydev @MattheDev53
