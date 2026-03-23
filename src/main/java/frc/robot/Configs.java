@@ -108,7 +108,7 @@ public final class Configs {
     }
   }
 
-  public static final class ClimberSubsystem {
+  public static final class ClimberConfigs {
     public static final SparkMaxConfig climbConfig = new SparkMaxConfig();
 
     static {

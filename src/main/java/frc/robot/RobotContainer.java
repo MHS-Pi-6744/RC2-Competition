@@ -7,6 +7,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -26,6 +27,7 @@ import frc.robot.Constants.AutoConstants.RedAlliance;
 import frc.robot.Constants.IntakeSubsystemConstants.PivotSetPoints;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterSubsystemConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.canIDs;
 // Subsystems
 import frc.robot.motor_ctl.MotorController;
@@ -136,7 +138,9 @@ public class RobotContainer {
                         m_driverController.getLeftY(), OIConstants.kDriveDeadband),
                     -MathUtil.applyDeadband(
                         m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(getDriveRot(), OIConstants.kDriveDeadband),
+                    -MathUtil.applyDeadband(
+                        getDriveRot(),
+                        drivingMode == DrivingMode.kTagAssisted ? 0.0 : OIConstants.kDriveDeadband),
                     true),
             m_robotDrive,
             vision));
@@ -165,13 +169,21 @@ public class RobotContainer {
       case kNormal:
         return m_driverController.getRightX();
       case kTagAssisted:
-        return vision.getTag(25).getYaw() / 180;
+        var robot_pose = m_robotDrive.getPose();
+        var target_pose =
+            isRedAlliance() ? VisionConstants.kRedHubCenter : VisionConstants.kBluHubCenter;
+        var a = target_pose.getX() - robot_pose.getX();
+        var o = target_pose.getY() - robot_pose.getY();
+        if (a == 0) return 0;
+        var target_angle = Math.atan2(o, a);
+        var diff = Units.radiansToDegrees(target_angle) - robot_pose.getRotation().getDegrees();
+        return -diff / 180;
       default:
         return m_driverController.getRightX();
     }
   }
 
-  /** Use this method to define your button->command mappings. */
+  /** Use this method to define your button -> command mappings. */
   private void configureButtonBindings() {
     // m_driverController.rightBumper().whileTrue(new InstantCommand(() ->
     // m_robotDrive.setX()));
@@ -199,13 +211,14 @@ public class RobotContainer {
         .leftBumper()
         .whileTrue(m_intake.runMotor(-1))
         .whileFalse(m_intake.stopMotor());
+    m_copilotController.y().onTrue(m_pivot.setTargetPosition(PivotSetPoints.kStartPosition));
+    m_copilotController.b().onTrue(m_pivot.setTargetPosition(PivotSetPoints.kMiddlePosition));
     m_copilotController.a().onTrue(m_pivot.setTargetPosition(PivotSetPoints.kEndPosition));
     m_copilotController.b().onTrue(m_pivot.setTargetPosition(PivotSetPoints.kStartPosition));
     m_copilotController.povLeft().onTrue(m_climber.setTargetPosition(90));
     m_copilotController.povRight().onTrue(m_climber.setTargetPosition(0));
     m_copilotController.povUp().onTrue(m_climber.runMotor(0.3)).onFalse(m_climber.stopMotor());
     m_copilotController.povDown().onTrue(m_climber.runMotor(-0.3)).onFalse(m_climber.stopMotor());
-    
   }
 
   /**
