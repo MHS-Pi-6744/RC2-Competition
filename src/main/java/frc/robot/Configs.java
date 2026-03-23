@@ -77,7 +77,7 @@ public final class Configs {
           .inverted(true)
           .idleMode(IdleMode.kCoast)
           .openLoopRampRate(0.5)
-          .smartCurrentLimit(40);
+          .smartCurrentLimit(30); // Lower this motor limit to 30 amp
 
       pivotConfig
           .idleMode(PivotSetPoints.kIdleMode)

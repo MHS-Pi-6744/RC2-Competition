@@ -68,9 +68,7 @@ public final class Constants {
   public static final class IntakeSubsystemConstants {
 
     public static final class IntakeSetpoints {
-      /**
-       * @apiNote The Command for setting the motor speed
-       */
+      /** @apiNote The Command for setting the motor speed */
       public static final double kIntake = 1; // Intake speed Units are percentage
     }
 
@@ -79,9 +77,6 @@ public final class Constants {
 
       public static final double kMiddlePosition = 68;
 
-      /**
-       * @apiNote DEGREES
-       */
       public static final double kEndPosition = 112;
 
       public static final int kCurrentLimit = 40;
