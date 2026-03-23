@@ -27,14 +27,8 @@ import java.util.List;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.targeting.TargetCorner;
 
-/**
- * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
- * constants. This class should not be used for any other purpose. All constants should be declared
- * globally (i.e. public static). Do not put anything functional in this class.
- *
- * <p>It is advised to statically import this class (or one of its inner classes) wherever the
- * constants are needed, to reduce verbosity.
- */
+
+
 public final class Constants {
   public static final class canIDs {
 
@@ -69,7 +63,7 @@ public final class Constants {
 
     public static final class IntakeSetpoints {
       /** @apiNote The Command for setting the motor speed */
-      public static final double kIntake = 1; // Intake speed Units are percentage
+      public static final double kIntake = 1; // !!!!! This is unused
     }
 
     public static final class PivotSetPoints {
@@ -81,22 +75,27 @@ public final class Constants {
 
       public static final int kCurrentLimit = 40;
 
-      public static final double kZeroOffest = .686; // units? For stationary testbed motor
+      public static final double kZeroOffest = .686; 
+          // rotations - should be set to so that absolute encoder never reaches zero in the pivot operating range
 
-      public static final double kPositionConversionFactorRel =
-          360 / 40.91; // Motor Rotation to Pivot Deg
-      public static final double kVelocityConversionFactorRel =
-          360 / 40.91; // Motor RPM to Pivot Deg/min
+      public static final double kPositionConversionFactorRel = 360 / 40.91; 
+          // Motor Rotation to Pivot Deg
 
-      public static final double kPositionConversionFactorAbs =
-          360; // Encoder rotation to Pivot Deg
-      public static final double kVelocityConversionFactorAbs = 360; // Encoder RPM to Pivot Deg/min
+      public static final double kVelocityConversionFactorRel = 360 / 40.91; 
+          // Motor RPM to Pivot Deg/min
+
+      public static final double kPositionConversionFactorAbs = 360; 
+          // Encoder rotation to Pivot Deg
+
+      public static final double kVelocityConversionFactorAbs = 360; 
+          // Encoder RPM to Pivot Deg/min
 
       public static final IdleMode kIdleMode = IdleMode.kCoast;
 
+      // Trapezoidal position control settings
       public static final double kMaxVelocity = 30000; // degrees per min
-      public static final double kMaxAcceleration = 21600; // Units deg/min/sec
-      public static final double kPositionTolerance = 90; // Units deg
+      public static final double kMaxAcceleration = 21600; // deg/min/sec
+      public static final double kPositionTolerance = 90; // deg
 
       // PID gains ======== Will need to be tuned when operating on the climber -Sr
       public static final double kP = 0.10000000;
