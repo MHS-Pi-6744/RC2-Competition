@@ -88,12 +88,18 @@ public final class Configs {
           .inverted(true)
           .zeroOffset(PivotSetPoints.kZeroOffest)
           .zeroCentered(false)
-          .positionConversionFactor(PivotSetPoints.kPositionConversionFactorAbs) // convert to degrees of intake pivot 
-          .velocityConversionFactor(PivotSetPoints.kVelocityConversionFactorAbs); // convert to degrees/min of intake pivot
+          .positionConversionFactor(
+              PivotSetPoints.kPositionConversionFactorAbs) // convert to degrees of intake pivot
+          .velocityConversionFactor(
+              PivotSetPoints
+                  .kVelocityConversionFactorAbs); // convert to degrees/min of intake pivot
       pivotConfig
           .encoder
-          .positionConversionFactor(PivotSetPoints.kPositionConversionFactorRel) // convert to degrees of intake pivot
-          .velocityConversionFactor(PivotSetPoints.kVelocityConversionFactorRel); // convert to degrees/min of intake pivot
+          .positionConversionFactor(
+              PivotSetPoints.kPositionConversionFactorRel) // convert to degrees of intake pivot
+          .velocityConversionFactor(
+              PivotSetPoints
+                  .kVelocityConversionFactorRel); // convert to degrees/min of intake pivot
       pivotConfig
           .closedLoop
           .feedbackSensor(FeedbackSensor.kPrimaryEncoder)

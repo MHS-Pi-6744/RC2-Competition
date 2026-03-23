@@ -27,8 +27,6 @@ import java.util.List;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.targeting.TargetCorner;
 
-
-
 public final class Constants {
   public static final class canIDs {
 
@@ -62,7 +60,9 @@ public final class Constants {
   public static final class IntakeSubsystemConstants {
 
     public static final class IntakeSetpoints {
-      /** @apiNote The Command for setting the motor speed */
+      /**
+       * @apiNote The Command for setting the motor speed
+       */
       public static final double kIntake = 1; // !!!!! This is unused
     }
 
@@ -75,20 +75,21 @@ public final class Constants {
 
       public static final int kCurrentLimit = 40;
 
-      public static final double kZeroOffest = .686; 
-          // rotations - should be set to so that absolute encoder never reaches zero in the pivot operating range
+      public static final double kZeroOffest = .686;
+      // rotations - should be set to so that absolute encoder never reaches zero in the pivot
+      // operating range
 
-      public static final double kPositionConversionFactorRel = 360 / 40.91; 
-          // Motor Rotation to Pivot Deg
+      public static final double kPositionConversionFactorRel = 360 / 40.91;
+      // Motor Rotation to Pivot Deg
 
-      public static final double kVelocityConversionFactorRel = 360 / 40.91; 
-          // Motor RPM to Pivot Deg/min
+      public static final double kVelocityConversionFactorRel = 360 / 40.91;
+      // Motor RPM to Pivot Deg/min
 
-      public static final double kPositionConversionFactorAbs = 360; 
-          // Encoder rotation to Pivot Deg
+      public static final double kPositionConversionFactorAbs = 360;
+      // Encoder rotation to Pivot Deg
 
-      public static final double kVelocityConversionFactorAbs = 360; 
-          // Encoder RPM to Pivot Deg/min
+      public static final double kVelocityConversionFactorAbs = 360;
+      // Encoder RPM to Pivot Deg/min
 
       public static final IdleMode kIdleMode = IdleMode.kCoast;
 

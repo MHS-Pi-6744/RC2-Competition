@@ -101,7 +101,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    SmartDashboard.putData("Pivot/" + "Calibrate Pivot Rel Motor", m_pivot.cal());
+    // SmartDashboard.putData("Pivot/" + "Calibrate Pivot Rel Motor", m_pivot.cal());
 
     NamedCommands.registerCommand("Flywheel Go", m_shooter.runRPM(2750));
     NamedCommands.registerCommand("Flywheel Stop", m_shooter.stopFlywheel());
