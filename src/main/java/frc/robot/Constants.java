@@ -86,14 +86,16 @@ public final class Constants {
     public static final class PivotSetPoints {
       public static final double kStartPosition = 5; // to stay away from zero encoder reading
 
+      public static final double kMiddlePosition = 43.8;
+
       /**
        * @apiNote DEGREES
        */
-      public static final double kEndPosition = 120;
+      public static final double kEndPosition = 87.6;
 
       public static final int kCurrentLimit = 40;
 
-      public static final double kZeroOffest = 0.0; // units? For stationary testbed motor
+      public static final double kZeroOffest = .671; // rotations at the point of the encoder
 
       public static final double kPositionConversionFactor =
           360 / 41; // For stationary test bed motor in deg
@@ -101,8 +103,8 @@ public final class Constants {
 
       public static final IdleMode kIdleMode = IdleMode.kCoast;
 
-      public static final double kMaxVelocity = 9000; // degrees per min
-      public static final double kMaxAcceleration = 3600; // Units deg/min/sec
+      public static final double kMaxVelocity = 30000; // degrees per min
+      public static final double kMaxAcceleration = 21600; // Units deg/min/sec
       public static final double kPositionTolerance = 90; // Units deg
 
       // PID gains ======== Will need to be tuned when operating on the climber -Sr
@@ -255,6 +257,9 @@ public final class Constants {
                 Units.inchesToMeters(0),
                 Units.inchesToMeters(20.7281)),
             new Rotation3d(0, -(Math.PI / 6), 0));
+
+    public static final Translation2d kBluHubCenter = new Translation2d(4.625, 4.030);
+    public static final Translation2d kRedHubCenter = new Translation2d(11.920, 4.030);
 
     // The layout of the AprilTags on the field
     public static final AprilTagFieldLayout kTagLayout =
