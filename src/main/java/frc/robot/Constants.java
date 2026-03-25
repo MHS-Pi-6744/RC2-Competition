@@ -75,31 +75,36 @@ public final class Constants {
     }
 
     public static final class PivotSetPoints {
-      public static final double kStartPosition = 5; // to stay away from zero encoder reading
+      public static final double kStartPosition = 7; // to stay away from zero encoder reading
 
-      public static final double kMiddlePosition = 43.8;
+      public static final double kMiddlePosition = 40;
 
       /**
        * @apiNote DEGREES
        */
-      public static final double kEndPosition = 87.6;
+      public static final double kEndPosition = 103;
 
       public static final int kCurrentLimit = 40;
 
-      public static final double kZeroOffest = .671; // rotations at the point of the encoder
+      public static final double kZeroOffest = .686; // units? For stationary testbed motor
 
-      public static final double kPositionConversionFactor =
-          360 / 41; // For stationary test bed motor in deg
-      public static final double kVelocityConversionFactor = 360 / 41; // This is deg/sec
+      public static final double kPositionConversionFactorRel =
+          360 / 40.91; // Motor Rotation to Pivot Deg
+      public static final double kVelocityConversionFactorRel =
+          360 / 40.91; // Motor RPM to Pivot Deg/min
+
+      public static final double kPositionConversionFactorAbs =
+          360; // Encoder rotation to Pivot Deg
+      public static final double kVelocityConversionFactorAbs = 360; // Encoder RPM to Pivot Deg/min
 
       public static final IdleMode kIdleMode = IdleMode.kCoast;
 
-      public static final double kMaxVelocity = 30000; // degrees per min
-      public static final double kMaxAcceleration = 21600; // Units deg/min/sec
-      public static final double kPositionTolerance = 90; // Units deg
+      public static final double kMaxVelocity = 24000; // degrees per min
+      public static final double kMaxAcceleration = 16200; // Units deg/min/sec
+      public static final double kPositionTolerance = 25; // Units deg
 
       // PID gains ======== Will need to be tuned when operating on the climber -Sr
-      public static final double kP = 0.10000000;
+      public static final double kP = 0.00750000;
       public static final double kI = 0.00000000;
       public static final double kD = 0.00000000;
 

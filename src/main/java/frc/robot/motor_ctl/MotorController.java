@@ -79,6 +79,10 @@ public class MotorController extends SubsystemBase {
     return run(() -> m_otor.set(speed));
   }
 
+  public Command clearFaults() {
+    return run(() -> m_otor.clearFaults());
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

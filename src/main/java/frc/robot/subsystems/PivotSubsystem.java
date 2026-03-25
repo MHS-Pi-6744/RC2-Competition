@@ -46,18 +46,8 @@ public class PivotSubsystem extends SubsystemBase {
     re_pivotMotor = m_pivotMotor.getEncoder();
     ae_pivotMotor = m_pivotMotor.getAbsoluteEncoder();
 
-    cal();
-
     setTargetPosition(
         PivotSetPoints.kStartPosition); // set target position to start position and go there
-  }
-
-  public void cal() {
-    re_pivotMotor.setPosition(ae_pivotMotor.getPosition());
-  }
-
-  public void slowMoveBack() {
-    p_pivotMotor.setSetpoint(-.5, ControlType.kMAXMotionPositionControl);
   }
 
   public Command setTargetPosition(double setpos) {
@@ -68,13 +58,17 @@ public class PivotSubsystem extends SubsystemBase {
         );
   }
 
+  public Command clearFaults() {
+    return run(() -> m_pivotMotor.clearFaults());
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Pivot/" + "Output", m_pivotMotor.getAppliedOutput());
     SmartDashboard.putNumber("Pivot/" + "Current", m_pivotMotor.getOutputCurrent());
-    SmartDashboard.putNumber("Pivot/" + "Relative/" + "Position", re_pivotMotor.getPosition());
-    SmartDashboard.putNumber("Pivot/" + "Absolute/" + "Position", ae_pivotMotor.getPosition());
-    SmartDashboard.putNumber("Pivot/" + "Relative/" + "Velocity", re_pivotMotor.getVelocity());
-    SmartDashboard.putNumber("Pivot/" + "Absolute/" + "Velocity", ae_pivotMotor.getVelocity());
+    SmartDashboard.putNumber("Pivot/" + "Relative/" + "Rel Position", re_pivotMotor.getPosition());
+    SmartDashboard.putNumber("Pivot/" + "Absolute/" + "Abs Position", ae_pivotMotor.getPosition());
+    SmartDashboard.putNumber("Pivot/" + "Relative/" + "Rel Velocity", re_pivotMotor.getVelocity());
+    SmartDashboard.putNumber("Pivot/" + "Absolute/" + "Abs Velocity", ae_pivotMotor.getVelocity());
   }
 }
