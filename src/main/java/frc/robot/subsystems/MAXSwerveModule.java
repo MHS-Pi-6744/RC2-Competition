@@ -17,6 +17,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.Configs;
 
 public class MAXSwerveModule {
@@ -122,5 +124,13 @@ public class MAXSwerveModule {
   /** NEVER USE THIS!! */
   public void voltageDrive(Voltage volts) {
     m_drivingSpark.setVoltage(volts);
+  }
+
+  public Command clearFaults() {
+    return new RunCommand(
+        () -> {
+          m_turningSpark.clearFaults();
+          m_drivingSpark.clearFaults();
+        });
   }
 }

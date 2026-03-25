@@ -39,4 +39,9 @@ public class ShooterSubsystem extends SubsystemBase {
     return new ParallelCommandGroup(
         m_left.incrSet(increment), m_center.incrSet(increment), m_right.incrSet(increment));
   }
+
+  public Command clearFaults() {
+    return new ParallelCommandGroup(
+        m_left.clearFaults(), m_center.clearFaults(), m_right.clearFaults());
+  }
 }

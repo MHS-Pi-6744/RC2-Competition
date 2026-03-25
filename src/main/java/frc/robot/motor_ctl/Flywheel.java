@@ -80,6 +80,10 @@ public class Flywheel extends SubsystemBase {
     return new InstantCommand(() -> addToSet(inc));
   }
 
+  public Command clearFaults() {
+    return run(() -> m_otor.clearFaults());
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

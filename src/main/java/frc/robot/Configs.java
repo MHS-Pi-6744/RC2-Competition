@@ -85,18 +85,18 @@ public final class Configs {
           .inverted(false);
       pivotConfig
           .absoluteEncoder
-          .inverted(false)
+          .inverted(true)
           .zeroOffset(PivotSetPoints.kZeroOffest)
           .zeroCentered(false)
-          .positionConversionFactor(360)
-          .velocityConversionFactor(360); // this may be giving us degrees/min???? -Sr
+          .positionConversionFactor(PivotSetPoints.kPositionConversionFactorAbs) // Deg
+          .velocityConversionFactor(PivotSetPoints.kVelocityConversionFactorAbs); // Deg/min
       pivotConfig
           .encoder
-          .positionConversionFactor(PivotSetPoints.kPositionConversionFactor)
-          .velocityConversionFactor(PivotSetPoints.kVelocityConversionFactor);
+          .positionConversionFactor(PivotSetPoints.kPositionConversionFactorRel) // Deg
+          .velocityConversionFactor(PivotSetPoints.kVelocityConversionFactorRel); // Deg/min
       pivotConfig
           .closedLoop
-          .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+          .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
           .pid(PivotSetPoints.kP, PivotSetPoints.kI, PivotSetPoints.kD)
           .outputRange(-1, 1)
           .maxMotion
