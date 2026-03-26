@@ -176,26 +176,8 @@
                     }
                   ]
                 }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "LT-LC"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Extend Climber"
-                }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Climb"
           }
         }
       ]
