@@ -32,7 +32,7 @@ import frc.robot.Constants.ShooterSubsystemConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.canIDs;
 // Subsystems
-import frc.robot.motor_ctl.MotorController;
+import frc.robot.majc4frc.motor_ctl.rev.CommandSparkMax;
 // Constants
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.PivotSubsystem;
@@ -52,13 +52,13 @@ public class RobotContainer {
   // private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final Vision vision = new Vision(m_robotDrive::addVisionMeasurement);
   private final PivotSubsystem m_pivot = new PivotSubsystem();
-  private final MotorController m_intake =
-      new MotorController(canIDs.kIntakeMotorCanId, IntakeConfigs.intakeConfig);
+  private final CommandSparkMax m_intake =
+      new CommandSparkMax(canIDs.kIntakeMotorCanId, IntakeConfigs.intakeConfig);
   private final ShooterSubsystem m_shooter = new ShooterSubsystem(this::getDistanceToTeamHub);
-  private final MotorController m_feeder =
-      new MotorController(canIDs.kFeederMotorCanId, Default.Config.inverted(false));
-  private final MotorController m_sucker =
-      new MotorController(ShooterSubsystemConstants.kSuckerCanId, Default.Config.inverted(true));
+  private final CommandSparkMax m_feeder =
+      new CommandSparkMax(canIDs.kFeederMotorCanId, Default.Config.inverted(false));
+  private final CommandSparkMax m_sucker =
+      new CommandSparkMax(ShooterSubsystemConstants.kSuckerCanId, Default.Config.inverted(true));
 
   private final SendableChooser<Command> autoChooser;
 
@@ -106,13 +106,13 @@ public class RobotContainer {
 
   private Command m_feeder_align =
       new ParallelCommandGroup(
-          m_sucker.setSpeed(1.0),
-          m_feeder.setSpeed(1.0),
+          m_sucker.set(1.0),
+          m_feeder.set(1.0),
           new InstantCommand(() -> driveTagAssisted()),
           new WaitCommand(0.1));
   private Command m_feeder_run =
       new ParallelCommandGroup(
-          m_sucker.setSpeed(1.0), m_feeder.setSpeed(1.0), new WaitCommand(0.1));
+          m_sucker.set(1.0), m_feeder.set(1.0), new WaitCommand(0.1));
   private Command m_feeder_stop =
       new ParallelCommandGroup(
           m_sucker.stopMotor(),
@@ -121,8 +121,8 @@ public class RobotContainer {
           new WaitCommand(0.1));
   private Command waterfallRun =
       new ParallelCommandGroup(
-          m_sucker.setSpeed(1.0),
-          m_feeder.setSpeed(1.0),
+          m_sucker.set(1.0),
+          m_feeder.set(1.0),
           m_shooter.runRPM(900),
           new WaitCommand(0.1));
   private Command waterfallStop =
@@ -144,8 +144,8 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "Pivot Up", m_pivot.setTargetPosition(PivotSetPoints.kStartPosition));
     // NamedCommands.registerCommand("Pivot Dump", m_feeder_stop);
-    NamedCommands.registerCommand("Intake Forwards", m_intake.runMotor(1));
-    NamedCommands.registerCommand("Intake Backwards", m_intake.runMotor(-1));
+    NamedCommands.registerCommand("Intake Forwards", m_intake.set(1));
+    NamedCommands.registerCommand("Intake Backwards", m_intake.set(-1));
     NamedCommands.registerCommand("Intake Stop", m_intake.stopMotor());
 
     // Configure the button bindings
@@ -251,11 +251,11 @@ public class RobotContainer {
     m_driverController.x().whileTrue(new RunCommand(() -> m_robotDrive.setX()));
     m_driverController
         .rightTrigger()
-        .whileTrue(m_intake.runMotor(IntakeConstants.kIntakeSpeed))
+        .whileTrue(m_intake.set(IntakeConstants.kIntakeSpeed))
         .whileFalse(m_intake.stopMotor());
     m_driverController
         .leftTrigger()
-        .whileTrue(m_intake.runMotor(-IntakeConstants.kIntakeSpeed))
+        .whileTrue(m_intake.set(-IntakeConstants.kIntakeSpeed))
         .whileFalse(m_intake.stopMotor());
     m_driverController
         .rightBumper()
