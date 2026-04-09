@@ -131,6 +131,14 @@ public class RobotContainer {
           m_feeder.stopMotor(),
           m_shooter.stopFlywheel(),
           new WaitCommand(0.1));
+  private Command m_intake_run =
+      new ParallelCommandGroup(
+          m_intake.runMotor(1),
+          new WaitCommand(0.5),
+          m_pivot.setTargetPosition(PivotSetPoints.kMiddlePosition),
+          new WaitCommand(0.5),
+          m_pivot.setTargetPosition(PivotSetPoints.kEndPosition));
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
